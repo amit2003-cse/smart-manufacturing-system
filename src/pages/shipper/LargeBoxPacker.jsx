@@ -41,7 +41,6 @@ const LargeBoxPacker = () => {
     }
   }, [currentSession, activeBatch]);
 
-  const capacity = activeBatch ? activeBatch.capacity : -1;
   const currentItemInfo = activeBatch ? masterData.find(i => i.itemCode === activeBatch.itemCode) : null;
 
   const handleScan = (barcode) => {

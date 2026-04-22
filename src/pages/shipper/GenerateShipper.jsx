@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Search, Printer, X, Box, CheckCircle2 } from 'lucide-react';
+import { Printer, X, Box } from 'lucide-react';
 import bwipjs from 'bwip-js';
 import { toast } from 'react-toastify';
 import { db } from '../../firebase';
@@ -76,6 +76,7 @@ const GenerateShipper = () => {
         const newBoxes = [];
         const batch = writeBatch(db);
         
+        // Removed unused capacity for Netlify build
         for (let i = 1; i <= itemInfo.boxCapacity; i++) {
           const sequence = String(i).padStart(3, '0');
           const barcode = `${selectedItem}-${selectedBatch}-U${sequence}`;

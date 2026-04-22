@@ -86,7 +86,7 @@ const Sidebar = () => {
                           key={sub.path} 
                           to={sub.path} 
                           onClick={handleItemClick}
-                          className={`sidebar-link ${location.pathname === item.path ? 'active' : ''}`}
+                          className={`nav-item sub-item ${location.pathname === sub.path ? 'active' : ''}`}
                         >
                           {sub.icon}
                           <span>{sub.name}</span>
