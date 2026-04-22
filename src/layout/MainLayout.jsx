@@ -2,7 +2,7 @@ import React from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
-import { useRecoilState, useRecoilValue } from 'recoil';
+import { useRecoilState } from 'recoil';
 import { sidebarState } from '../store/atoms';
 import './MainLayout.scss';
 import { useLocation } from 'react-router-dom'; 

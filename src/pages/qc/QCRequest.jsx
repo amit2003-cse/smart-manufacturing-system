@@ -5,7 +5,6 @@ import { db } from '../../firebase';
 import { collection, writeBatch, doc } from 'firebase/firestore';
 import { useRecoilState, useRecoilValue } from 'recoil';
 
-import { masterData } from '../../data/masterData';
 import { unitBoxesDBState, qcState } from '../../store/atoms';
 import BarcodeInput from '../../components/shared/BarcodeInput';
 import AppDataGrid from '../../components/shared/AppDataGrid';
