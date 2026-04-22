@@ -61,7 +61,7 @@ const Sidebar = () => {
       <nav className="nav-menu">
         {menuItems.map((item) => {
           const isParentActive = item.subItems?.some(sub => location.pathname.includes(sub.path));
-          const isActive = location.pathname === item.path;
+          // Removed unused isActive
 
           return (
             <div key={item.name} className="menu-group">
@@ -86,7 +86,7 @@ const Sidebar = () => {
                           key={sub.path} 
                           to={sub.path} 
                           onClick={handleItemClick}
-                          className={({ isActive }) => `nav-item sub-item ${isActive ? 'active' : ''}`}
+                          className={`sidebar-link ${location.pathname === item.path ? 'active' : ''}`}
                         >
                           {sub.icon}
                           <span>{sub.name}</span>
