@@ -1,5 +1,5 @@
 import React, { useState, useMemo, useEffect } from 'react';
-import { Printer, X, Box } from 'lucide-react';
+import { Printer, X, Box, Search } from 'lucide-react';
 import bwipjs from 'bwip-js';
 import { toast } from 'react-toastify';
 import { db } from '../../firebase';
@@ -39,6 +39,47 @@ const GenerateShipper = () => {
     return item ? item.batches : [];
   }, [selectedItem]);
 
+  const isExistingBatch = useMemo(() => {
+    if (!selectedItem || !selectedBatch) return false;
+    return unitBoxesDB.some(b => b.itemCode === selectedItem && b.batchCode === selectedBatch);
+  }, [selectedItem, selectedBatch, unitBoxesDB]);
+
+  const handleSearchBatch = async () => {
+    if (!selectedItem || !selectedBatch) return;
+    setLoading(true);
+    try {
+      // Prioritize SSoT Local State
+      const localExisting = unitBoxesDB.filter(b => b.itemCode === selectedItem && b.batchCode === selectedBatch);
+      if (localExisting.length > 0) {
+        setDisplayData(localExisting);
+        toast.info(`Loaded ${localExisting.length} unit boxes from Local State.`);
+      } else {
+        // Fallback Check Firestore
+        const q = query(
+          collection(db, "unit_boxes"), 
+          where("itemCode", "==", selectedItem), 
+          where("batchCode", "==", selectedBatch)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          const existing = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setDisplayData(existing);
+          // Sync SSoT
+          const otherBatches = unitBoxesDB.filter(b => !(b.itemCode === selectedItem && b.batchCode === selectedBatch));
+          setUnitBoxesDB([...otherBatches, ...existing]);
+          toast.info(`Loaded ${existing.length} unit boxes from Cloud Database.`);
+        } else {
+          toast.error("No records found in database.");
+        }
+      }
+    } catch (error) {
+      toast.error("Error fetching data.");
+    } finally {
+      setLoading(false);
+    }
+  };
+
   const handleGenerateBatch = async () => {
     setShowConfirm(false);
     if (!selectedItem || !selectedBatch) return;
@@ -47,39 +88,26 @@ const GenerateShipper = () => {
     const itemInfo = masterData.find(i => i.itemCode === selectedItem);
     
     try {
-      // 1. Check local state (SSoT) first to prevent duplicate generation
-      const localExisting = unitBoxesDB.filter(b => b.itemCode === selectedItem && b.batchCode === selectedBatch);
-      
-      if (localExisting.length > 0) {
-        setDisplayData(localExisting);
-        toast.info(`Loaded ${localExisting.length} unit boxes from Local State.`);
-        setLoading(false);
-        return;
-      }
+        // Ultimate Duplicate Check in Cloud
+        const q = query(
+          collection(db, "unit_boxes"), 
+          where("itemCode", "==", selectedItem), 
+          where("batchCode", "==", selectedBatch)
+        );
+        const querySnapshot = await getDocs(q);
+        
+        if (!querySnapshot.empty) {
+          toast.warning("This batch already exists in the cloud! Use Search instead.");
+          const existing = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+          setDisplayData(existing);
+          const otherBatches = unitBoxesDB.filter(b => !(b.itemCode === selectedItem && b.batchCode === selectedBatch));
+          setUnitBoxesDB([...otherBatches, ...existing]);
+          return;
+        }
 
-      // Fallback: Check Firestore
-      const q = query(
-        collection(db, "unit_boxes"), 
-        where("itemCode", "==", selectedItem), 
-        where("batchCode", "==", selectedBatch)
-      );
-      const querySnapshot = await getDocs(q);
-      
-      if (!querySnapshot.empty) {
-        const existing = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-        setDisplayData(existing);
-        
-        // Sync local SSoT with cloud data
-        const otherBatches = unitBoxesDB.filter(b => !(b.itemCode === selectedItem && b.batchCode === selectedBatch));
-        setUnitBoxesDB([...otherBatches, ...existing]);
-        
-        toast.info(`Loaded ${existing.length} unit boxes from Cloud Database.`);
-      } else {
-        // 2. Generate new and save to Cloud & Local SSoT
         const newBoxes = [];
         const batch = writeBatch(db);
         
-        // Removed unused capacity for Netlify build
         for (let i = 1; i <= itemInfo.boxCapacity; i++) {
           const sequence = String(i).padStart(3, '0');
           const barcode = `${selectedItem}-${selectedBatch}-U${sequence}`;
@@ -101,10 +129,9 @@ const GenerateShipper = () => {
         }
 
         await batch.commit();
-        setUnitBoxesDB(prev => [...prev, ...newBoxes]); // Save to SSoT
+        setUnitBoxesDB(prev => [...prev, ...newBoxes]); // Sync to SSoT
         setDisplayData(newBoxes);
         toast.success(`Generated and Saved ${itemInfo.boxCapacity} boxes to System!`);
-      }
     } catch (error) {
       console.error("Error:", error);
       toast.error("Failed to process request.");
@@ -167,15 +194,24 @@ const GenerateShipper = () => {
             placeholder="Select..." 
           />
 
-          <div className="filter-actions" style={{ alignSelf: 'flex-end' }}>
+          <div className="filter-actions" style={{ alignSelf: 'flex-end', display: 'flex', gap: '10px' }}>
             <button 
-              className={`btn btn-success ${loading ? 'btn-loading' : ''}`} 
+              className={`btn btn-primary ${loading && isExistingBatch ? 'btn-loading' : ''}`} 
+              onClick={handleSearchBatch} 
+              disabled={loading || !selectedBatch || !isExistingBatch}
+              style={{ minWidth: '120px', height: '42px' }}
+            >
+              <Search size={18} />
+              <span>{loading && isExistingBatch ? '' : 'Search'}</span>
+            </button>
+            <button 
+              className={`btn btn-success ${loading && !isExistingBatch ? 'btn-loading' : ''}`} 
               onClick={() => setShowConfirm(true)} 
-              disabled={loading || !selectedBatch}
-              style={{ minWidth: '180px', height: '42px' }}
+              disabled={loading || !selectedBatch || isExistingBatch}
+              style={{ minWidth: '120px', height: '42px' }}
             >
               <Box size={18} />
-              <span>{loading ? '' : 'Generate / Load Batch'}</span>
+              <span>{loading && !isExistingBatch ? '' : 'Generate'}</span>
             </button>
           </div>
         </div>

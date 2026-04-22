@@ -44,12 +44,11 @@ const ConfirmModal = ({ isOpen, title = "Confirm Action", message, onConfirm, on
 
         @media (max-width: 640px) {
           .confirm-modal {
-            width: 100%;
+            width: calc(100% - 32px);
+            margin: 16px;
             max-width: none;
-            position: absolute;
-            bottom: 0;
-            border-radius: 20px 20px 0 0;
-            padding: 32px 24px 24px;
+            border-radius: 16px;
+            padding: 24px;
           }
         }
         .modal-header {

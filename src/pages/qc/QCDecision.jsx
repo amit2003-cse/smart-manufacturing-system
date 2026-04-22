@@ -138,25 +138,26 @@ const QCDecision = () => {
             <h4 style={{ margin: 0, color: '#1e293b' }}>Pending Reviews ({filteredList.length})</h4>
             
             <div className="header-btn-group">
-                <button 
-                    onClick={() => handleBulkAction('APPROVED')}
-                    className="btn btn-secondary"
-                    style={{ color: '#059669', borderColor: '#a7f3d0', background: '#f0fdf4' }}
-                >
-                    <CheckSquare size={14} /> Accept All
-                </button>
-                <button 
-                    onClick={() => handleBulkAction('REJECTED')}
-                    className="btn btn-secondary"
-                    style={{ color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
-                >
-                    <XSquare size={14} /> Reject All
-                </button>
+                <div className="dual-btn-group">
+                  <button 
+                      onClick={() => handleBulkAction('APPROVED')}
+                      className="btn btn-secondary"
+                      style={{ color: '#059669', borderColor: '#a7f3d0', background: '#f0fdf4' }}
+                  >
+                      <CheckSquare size={14} /> Accept All
+                  </button>
+                  <button 
+                      onClick={() => handleBulkAction('REJECTED')}
+                      className="btn btn-secondary"
+                      style={{ color: '#dc2626', borderColor: '#fecaca', background: '#fef2f2' }}
+                  >
+                      <XSquare size={14} /> Reject All
+                  </button>
+                </div>
                 <button 
                     className={`btn btn-success ${loading ? 'btn-loading' : ''}`}
                     onClick={() => setShowConfirm(true)}
                     disabled={loading || Object.keys(sessionChanges).length === 0}
-                    style={{ marginLeft: '8px' }}
                 >
                     <Save size={16} /> <span>{loading ? '' : 'Save Decisions'}</span>
                 </button>
@@ -219,8 +220,21 @@ const QCDecision = () => {
       />
 
       <style>{`
-        .action-btn-qc { border: none; padding: 6px 12px; border-radius: 4px; display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }
-        .action-btn-qc:hover { filter: brightness(0.95); }
+        .filter-actions { align-self: flex-end; }
+        .action-cell { display: flex; gap: 8px; justify-content: center; }
+        .btn-approve { color: #059669; border-color: #a7f3d0; background: #f0fdf4; }
+        .btn-reject { color: #dc2626; border-color: #fecaca; background: #fef2f2; }
+        .dx-datagrid {
+          background: transparent;
+          font-size: 14px;
+          .dx-datagrid-header-panel { padding-bottom: 10px; }
+          .dx-datagrid-headers { background: #f8fafc; color: #475569; font-weight: 600; font-size: 13px; }
+          .dx-datagrid-rowsview .dx-row { height: 52px; }
+        }
+        .dual-btn-group { display: flex; gap: 4px; }
+        @media (max-width: 600px) {
+          .dual-btn-group { flex-direction: column; }
+        }
         .undo-btn { background: none; border: none; color: #64748b; cursor: pointer; display: flex; align-items: center; padding: 4px; }
         .undo-btn:hover { color: #1e293b; }
       `}</style>

@@ -3,7 +3,7 @@ import { Trash2, Printer, CheckCircle, Package } from 'lucide-react';
 import { toast } from 'react-toastify';
 import bwipjs from 'bwip-js';
 import { db } from '../../firebase';
-import { doc, writeBatch } from 'firebase/firestore';
+import { doc, writeBatch, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
 import { useRecoilState, useRecoilValue } from 'recoil';
 
 import { masterData } from '../../data/masterData';
@@ -17,6 +17,8 @@ const LargeBoxPacker = () => {
   const [showPreview, setShowPreview] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
 
+  const [mode, setMode] = useState('GENERATE'); // 'GENERATE' | 'VIEW'
+  
   // Rule: 10 units = 1 Large Box
   const boxCapacity = 10;
 
@@ -98,6 +100,40 @@ const LargeBoxPacker = () => {
     setCurrentSession(prev => [...prev, boxInDB]);
     toast.success('Box Validated & Added');
     return true;
+  };
+
+  const handleViewScan = async (barcode) => {
+    if (!barcode) return;
+    setLoading(true);
+    try {
+      // Prioritize SSoT Local State
+      const existing = combinedBoxesDB.find(cb => cb.barcode === barcode);
+      if (existing) {
+        setCurrentSession(existing.unitBoxes);
+        setActiveBatch({ itemCode: existing.itemCode, code: existing.batchCode, capacity: existing.unitBoxes.length });
+        setShowPreview(true);
+        toast.info("Carton loaded from Local State.");
+      } else {
+        // Fallback: Check Firestore
+        const docRef = doc(db, "combined_boxes", barcode);
+        const docSnap = await getDoc(docRef);
+        
+        if (docSnap.exists()) {
+          const cartonData = { id: docSnap.id, ...docSnap.data() };
+          setCurrentSession(cartonData.unitBoxes);
+          setActiveBatch({ itemCode: cartonData.itemCode, code: cartonData.batchCode, capacity: cartonData.unitBoxes.length });
+          setShowPreview(true);
+          setCombinedBoxesDB(prev => [...prev, cartonData]);
+          toast.info("Carton loaded from Cloud Database.");
+        } else {
+          toast.error("Packaging not found");
+        }
+      }
+    } catch (e) {
+      toast.error("Error fetching data");
+    } finally {
+      setLoading(false);
+    }
   };
 
   const handleGenerateAndSave = async () => {
@@ -182,13 +218,32 @@ const LargeBoxPacker = () => {
       </div>
 
       <div className="filter-card card no-print">
+        <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input type="radio" checked={mode === 'GENERATE'} onChange={() => { setMode('GENERATE'); handleClearSession(); }} /> 
+            <strong>Generate Packaging</strong>
+          </label>
+          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
+            <input type="radio" checked={mode === 'VIEW'} onChange={() => { setMode('VIEW'); handleClearSession(); }} /> 
+            <strong>View Existing Packaging</strong>
+          </label>
+        </div>
         <div className="filter-grid" style={{ gridTemplateColumns: '1fr' }}>
-          <BarcodeInput 
-            label="SCAN UNIT BOX"
-            placeholder="Scan unit box serial (auto-submits)..."
-            onScan={handleScan}
-            disabled={loading || showPreview}
-          />
+          {mode === 'GENERATE' ? (
+            <BarcodeInput 
+              label="SCAN UNIT BOX"
+              placeholder="Scan unit box serial (auto-submits)..."
+              onScan={handleScan}
+              disabled={loading || showPreview}
+            />
+          ) : (
+            <BarcodeInput 
+              label="SCAN CARTON BARCODE"
+              placeholder="Scan carton barcode..."
+              onScan={handleViewScan}
+              disabled={loading}
+            />
+          )}
         </div>
       </div>
 
@@ -211,14 +266,16 @@ const LargeBoxPacker = () => {
               showActions={!showPreview}
               actionWidth={60}
               actionRender={(d) => (
-                  <button onClick={() => { setCurrentSession(prev => prev.filter(b => b.barcode !== d.data.barcode)); setShowPreview(false); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
-                    <Trash2 size={16} />
-                  </button>
+                  mode === 'GENERATE' ? (
+                    <button onClick={() => { setCurrentSession(prev => prev.filter(b => b.barcode !== d.data.barcode)); setShowPreview(false); }} style={{ background: 'none', border: 'none', color: '#ef4444', cursor: 'pointer' }}>
+                      <Trash2 size={16} />
+                    </button>
+                  ) : null
               )}
             />
           </div>
 
-          {!showPreview && (
+          {mode === 'GENERATE' && !showPreview && (
             <button 
                 className={`btn btn-success ${loading ? 'btn-loading' : ''}`}
                 onClick={() => setShowConfirm(true)} 

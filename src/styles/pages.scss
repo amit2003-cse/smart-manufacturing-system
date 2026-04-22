@@ -94,13 +94,13 @@
 // DataGrid Styling overrides for modern look
 .grid-card {
   padding: 10px !important; // Grid ke liye padding kam rakhenge
-  
-  .dx-datagrid {
-    background: transparent;
-    .dx-datagrid-header-panel { padding-bottom: 10px; }
-    .dx-datagrid-headers { background: #f8fafc; color: #475569; font-weight: 600; }
-    .dx-datagrid-rowsview .dx-row { height: 50px; }
-  }
+    .dx-datagrid {
+      background: transparent;
+      font-size: 14px; // Increased for better readability
+      .dx-datagrid-header-panel { padding-bottom: 10px; }
+      .dx-datagrid-headers { background: #f8fafc; color: #475569; font-weight: 600; font-size: 13px; }
+      .dx-datagrid-rowsview .dx-row { height: 52px; }
+    }
 }
 
 .grid-action-btn {
@@ -161,7 +161,13 @@
   }
 
   .barcode-container {
-    display: flex; justify-content: center;
+    display: flex; 
+    justify-content: center;
+    padding: 24px;
+    background: #f8fafc;
+    margin: 16px;
+    border-radius: 8px;
+    border: 1px solid #e2e8f0;
     canvas { max-width: 100%; height: auto; }
   }
 
@@ -324,7 +330,35 @@
 
   @media (max-width: 640px) {
     width: 100%;
-    flex-wrap: wrap;
-    .btn { flex: 1; min-width: 120px; }
+    flex-direction: column;
+    gap: 8px;
+    
+    .dual-btn-group {
+      display: flex;
+      gap: 8px;
+      width: 100%;
+      .btn { flex: 1; width: auto; min-width: 0; }
+    }
+
+    .btn { 
+      width: 100%;
+      white-space: nowrap;
+      padding: 10px 16px;
+      justify-content: center;
+    }
+  }
+}
+
+/* Toastify Overrides for Mobile */
+@media (max-width: 640px) {
+  .Toastify__toast-container {
+    width: calc(100% - 32px) !important;
+    left: 16px !important;
+    top: 16px !important;
+    transform: none !important;
+  }
+  .Toastify__toast {
+    margin-bottom: 8px !important;
+    border-radius: 12px !important;
   }
 }
