@@ -3,7 +3,7 @@ import { Trash2, Printer, CheckCircle, Package } from 'lucide-react';
 import { toast } from 'react-toastify';
 import bwipjs from 'bwip-js';
 import { db } from '../../firebase';
-import { doc, writeBatch, getDoc, collection, query, where, getDocs } from 'firebase/firestore';
+import { doc, writeBatch, getDoc } from 'firebase/firestore';
 import { useRecoilState, useRecoilValue } from 'recoil';
 
 import { masterData } from '../../data/masterData';
