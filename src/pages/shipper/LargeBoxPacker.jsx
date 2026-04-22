@@ -9,6 +9,7 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 import { masterData } from '../../data/masterData';
 import { unitBoxesDBState, qcState, combinedBoxesDBState } from '../../store/atoms';
 import BarcodeInput from '../../components/shared/BarcodeInput';
+import AppSelect from '../../components/shared/AppSelect';
 import AppDataGrid from '../../components/shared/AppDataGrid';
 import ConfirmModal from '../../components/shared/ConfirmModal';
 
@@ -18,6 +19,8 @@ const LargeBoxPacker = () => {
   const [showConfirm, setShowConfirm] = useState(false);
 
   const [mode, setMode] = useState('GENERATE'); // 'GENERATE' | 'VIEW'
+  const [viewSelectedItem, setViewSelectedItem] = useState(null);
+  const [viewSelectedBatch, setViewSelectedBatch] = useState(null);
   
   // Rule: 10 units = 1 Large Box
   const boxCapacity = 10;
@@ -40,10 +43,10 @@ const LargeBoxPacker = () => {
   useEffect(() => {
     localStorage.setItem('packing_session', JSON.stringify(currentSession));
     localStorage.setItem('active_batch_lock', JSON.stringify(activeBatch));
-    if (activeBatch && currentSession.length !== activeBatch.capacity) {
+    if (activeBatch && currentSession.length !== activeBatch.capacity && mode === 'GENERATE') {
         setShowPreview(false);
     }
-  }, [currentSession, activeBatch]);
+  }, [currentSession, activeBatch, mode]);
 
   const currentItemInfo = activeBatch ? masterData.find(i => i.itemCode === activeBatch.itemCode) : null;
 
@@ -136,6 +139,35 @@ const LargeBoxPacker = () => {
     }
   };
 
+  const handleFetchExisting = async (itemCode, batchCode) => {
+    if (!itemCode || !batchCode) return;
+    setLoading(true);
+    try {
+      const existing = combinedBoxesDB.find(cb => cb.itemCode === itemCode && cb.batchCode === batchCode);
+      if (existing) {
+        setCurrentSession(existing.unitBoxes);
+        setActiveBatch({ itemCode: existing.itemCode, code: existing.batchCode, capacity: existing.unitBoxes.length });
+        setShowPreview(true);
+      } else {
+        toast.error("Packaging not found for this batch");
+      }
+    } finally {
+      setLoading(false);
+    }
+  };
+
+  const availableViewItems = React.useMemo(() => {
+    const uniqueItems = [...new Set(combinedBoxesDB.map(cb => cb.itemCode))];
+    return uniqueItems;
+  }, [combinedBoxesDB]);
+
+  const availableViewBatches = React.useMemo(() => {
+    if (!viewSelectedItem) return [];
+    return combinedBoxesDB
+      .filter(cb => cb.itemCode === viewSelectedItem)
+      .map(cb => cb.batchCode);
+  }, [viewSelectedItem, combinedBoxesDB]);
+
   const handleGenerateAndSave = async () => {
       setShowConfirm(false);
       if (currentSession.length !== boxCapacity) return;
@@ -181,11 +213,11 @@ const LargeBoxPacker = () => {
       }
   };
 
-  const handleClearSession = () => {
+  const handleClearSession = (silent = false) => {
     setCurrentSession([]);
     setActiveBatch(null);
     setShowPreview(false);
-    toast.info("Session Cleared");
+    if (!silent) toast.info("Session Cleared");
   };
 
   useEffect(() => {
@@ -200,7 +232,7 @@ const LargeBoxPacker = () => {
             currentSession.forEach((box, index) => {
               const canvasId = `unit-preview-${index}`;
               if (document.getElementById(canvasId)) {
-                bwipjs.toCanvas(canvasId, { bcid: 'code128', text: box.barcode.split('-').pop(), scale: 2, height: 10, includetext: true });
+                bwipjs.toCanvas(canvasId, { bcid: 'code128', text: box.barcode, scale: 3, height: 10, includetext: true });
               }
             });
         } catch (e) { console.error(e); }
@@ -218,17 +250,23 @@ const LargeBoxPacker = () => {
       </div>
 
       <div className="filter-card card no-print">
-        <div style={{ display: 'flex', gap: '20px', marginBottom: '20px' }}>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <input type="radio" checked={mode === 'GENERATE'} onChange={() => { setMode('GENERATE'); handleClearSession(); }} /> 
-            <strong>Generate Packaging</strong>
-          </label>
-          <label style={{ display: 'flex', alignItems: 'center', gap: '8px', cursor: 'pointer' }}>
-            <input type="radio" checked={mode === 'VIEW'} onChange={() => { setMode('VIEW'); handleClearSession(); }} /> 
-            <strong>View Existing Packaging</strong>
-          </label>
+        <div className="segmented-control-container">
+          <div className="segmented-control">
+            <button 
+              className={`segmented-item ${mode === 'GENERATE' ? 'active' : ''}`}
+              onClick={() => { setMode('GENERATE'); handleClearSession(true); }}
+            >
+              Barcode Scan Mode
+            </button>
+            <button 
+              className={`segmented-item ${mode === 'VIEW' ? 'active' : ''}`}
+              onClick={() => { setMode('VIEW'); handleClearSession(true); }}
+            >
+              Batch Selection Mode
+            </button>
+          </div>
         </div>
-        <div className="filter-grid" style={{ gridTemplateColumns: '1fr' }}>
+        <div className="filter-grid" style={{ gridTemplateColumns: mode === 'GENERATE' ? '1fr' : '1fr 1fr' }}>
           {mode === 'GENERATE' ? (
             <BarcodeInput 
               label="SCAN UNIT BOX"
@@ -237,12 +275,30 @@ const LargeBoxPacker = () => {
               disabled={loading || showPreview}
             />
           ) : (
-            <BarcodeInput 
-              label="SCAN CARTON BARCODE"
-              placeholder="Scan carton barcode..."
-              onScan={handleViewScan}
-              disabled={loading}
-            />
+            <>
+              <AppSelect 
+                label="Select Item"
+                dataSource={availableViewItems}
+                value={viewSelectedItem}
+                onValueChanged={(e) => {
+                  setViewSelectedItem(e.value);
+                  setViewSelectedBatch(null);
+                  handleClearSession(true);
+                }}
+                placeholder="Select Item..."
+              />
+              <AppSelect 
+                label="Select Batch"
+                dataSource={availableViewBatches}
+                value={viewSelectedBatch}
+                onValueChanged={(e) => {
+                  setViewSelectedBatch(e.value);
+                  handleFetchExisting(viewSelectedItem, e.value);
+                }}
+                disabled={!viewSelectedItem}
+                placeholder="Select Batch..."
+              />
+            </>
           )}
         </div>
       </div>
@@ -303,19 +359,21 @@ const LargeBoxPacker = () => {
                  <div className="label-header">
                     <div className="model-info">MODEL: {currentItemInfo?.modelName}</div>
                     <div className="carton-info">
-                        <span>Carton No.: {combinedBoxesDB.find(cb => cb.itemCode === activeBatch?.itemCode && cb.batchCode === activeBatch?.code)?.barcode}</span>
+                        <div className="carton-text-group">
+                          <span>Carton No.:</span>
+                          <canvas id="cartonPreview"></canvas>
+                        </div>
                         <button 
                           onClick={() => {
                             const bc = combinedBoxesDB.find(cb => cb.itemCode === activeBatch?.itemCode && cb.batchCode === activeBatch?.code)?.barcode;
                             navigator.clipboard.writeText(bc);
                             toast.success("Barcode copied!");
                           }}
-                          style={{ marginLeft: '10px', padding: '2px 8px', fontSize: '10px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}
+                          style={{ padding: '2px 8px', fontSize: '10px', background: '#f1f5f9', border: '1px solid #cbd5e1', borderRadius: '4px', cursor: 'pointer' }}
                           className="no-print"
                         >
                           Copy
                         </button>
-                        <canvas id="cartonPreview"></canvas>
                     </div>
                  </div>
                  <div className="label-body">
@@ -325,9 +383,11 @@ const LargeBoxPacker = () => {
                         ))}
                     </div>
                     <div className="center-info-column">
-                        <div className="pcs-count">{currentSession.length} PCS</div>
+                        <div className="pcs-count">{currentSession.length}PCS</div>
                         <div className="sn-label">SN</div>
+                        <div className="v-line"></div>
                         <div className="qr-box"><canvas id="qrPreview"></canvas></div>
+                        <div className="v-line"></div>
                     </div>
                     <div className="barcode-column">
                         {currentSession.slice(6, 12).map((box, i) => (
@@ -368,17 +428,33 @@ const LargeBoxPacker = () => {
         .section-header { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; margin-bottom: 16px; }
         .batch-tag { background: #eff6ff; color: #1e3a8a; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
         .preview-content-box { border: 1px solid #e2e8f0; border-radius: 12px; flex: 1; background: #ffffff; padding: 24px; display: flex; justify-content: center; overflow-y: auto; }
-        .label-production-preview { background: white; width: 100%; max-width: 600px; padding: 20px; border: 1px solid #eee; font-family: sans-serif; color: black; }
-        .label-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; }
-        .carton-info { display: flex; align-items: center; gap: 8px; font-size: 12px; font-weight: bold; }
+        .label-production-preview { background: white; width: 100%; max-width:1000px; padding: 25px; border: px solid #ddd; font-family: 'Inter', sans-serif; color: black; }
+        .label-header { display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 20px; border-bottom: 1.5px solid #000; padding-bottom: 8px; }
+        .model-info { font-size: 16px; font-weight: 700; text-transform: uppercase; }
+        .carton-info { display: flex; flex-direction: column; align-items: flex-end; gap: 4px; }
+        .carton-text-group { display: flex; align-items: center; gap: 10px; font-size: 12px; font-weight: 700; }
         #cartonPreview { height: 40px !important; width: 160px !important; }
-        .label-body { display: flex; justify-content: space-between; align-items: flex-start; }
-        .barcode-column { flex: 1; display: flex; flex-direction: column; gap: 8px; }
-        .unit-item canvas { height: 35px !important; width: 140px !important; }
-        .center-info-column { flex: 0.8; display: flex; flex-direction: column; align-items: center; }
-        .pcs-count { font-size: 24px; font-weight: 800; }
-        .qr-box canvas { height: 100px !important; width: 100px !important; }
+        .label-body { display: flex; justify-content: space-between; align-items: stretch; gap: 10px; }
+        .barcode-column { flex: 1; display: flex; flex-direction: column; gap: 6px; }
+        .unit-item { padding: 1px; }
+        .unit-item canvas { height: 34px !important; width: 135px !important; }
+        .center-info-column { flex: 0.5; display: flex; flex-direction: column; align-items: center; padding-top: 10px; }
+        .pcs-count { font-size: 20px; font-weight: 800; margin-bottom: 2px; }
+        .sn-label { font-size: 12px; font-weight: 800; margin-bottom: 5px; }
+        .v-line { width: 2px; height: 30px; background: #000; margin: 5px 0; }
+        .qr-box canvas { height: 85px !important; width: 85px !important; }
         .empty-preview { text-align: center; color: #94a3b8; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 12px; width: 100%; }
+
+        /* Segmented Control Styles */
+        .segmented-control-container { display: flex; justify-content: center; margin-bottom: 24px; }
+        .segmented-control { display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; gap: 4px; width: 100%; max-width: 500px; }
+        .segmented-item { flex: 1; border: none; background: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; }
+        .segmented-item:hover { color: #1e293b; }
+        .segmented-item.active { background: white; color: #1e3a8a; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        
+        @media (max-width: 640px) {
+          .segmented-control { flex-direction: column; }
+        }
         
         @media print {
             .no-print { display: none !important; }
