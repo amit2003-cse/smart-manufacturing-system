@@ -138,7 +138,7 @@ const DeliveryScan = () => {
             />
           </div>
         ) : (
-          <div className="filter-grid" style={{ gridTemplateColumns: '1fr 1fr auto' }}>
+          <div className="filter-grid">
             <AppSelect 
                 label="Item Code"
                 dataSource={availableItems} 
@@ -167,7 +167,7 @@ const DeliveryScan = () => {
 
       {displayData.length > 0 ? (
         <div className="grid-card card">
-          <div className="section-header" style={{ padding: '0 0 16px 0', borderBottom: '1px solid #f1f5f9', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+          <div className="section-header">
             <h4 style={{ margin: 0, color: '#1e293b' }}>
                 {gridContext === 'carton_info' ? `Matched Carton Info` : `Linked Unit Boxes (${displayData.length})`}
             </h4>

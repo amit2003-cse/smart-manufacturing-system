@@ -2,13 +2,13 @@ import React from 'react';
 import Header from './Header';
 import Sidebar from './Sidebar';
 import Footer from './Footer';
-import { useRecoilValue } from 'recoil';
+import { useRecoilState, useRecoilValue } from 'recoil';
 import { sidebarState } from '../store/atoms';
 import './MainLayout.scss';
 import { useLocation } from 'react-router-dom'; 
 
 const MainLayout = ({ children }) => {
-  const isOpen = useRecoilValue(sidebarState);
+  const [isOpen, setSidebarOpen] = useRecoilState(sidebarState);
   const location = useLocation();
 
   const pathnames = location.pathname.split('/').filter((x) => x);
@@ -17,6 +17,7 @@ const MainLayout = ({ children }) => {
     <div className={`app-container ${isOpen ? 'sidebar-open' : 'sidebar-collapsed'}`}>
       <Header />
       <div className="content-wrapper">
+        {isOpen && <div className="mobile-sidebar-overlay" onClick={() => setSidebarOpen(false)}></div>}
         <Sidebar />
         <main className="main-content">
           <div className="content-scroll-container">

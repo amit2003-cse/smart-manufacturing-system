@@ -1,7 +1,16 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { AlertTriangle, X } from 'lucide-react';
 
 const ConfirmModal = ({ isOpen, title = "Confirm Action", message, onConfirm, onCancel, confirmText = "Confirm", cancelText = "Cancel" }) => {
+  useEffect(() => {
+    if (isOpen) {
+      document.body.style.overflow = 'hidden';
+    } else {
+      document.body.style.overflow = '';
+    }
+    return () => { document.body.style.overflow = ''; };
+  }, [isOpen]);
+
   if (!isOpen) return null;
 
   return (
@@ -29,7 +38,19 @@ const ConfirmModal = ({ isOpen, title = "Confirm Action", message, onConfirm, on
           max-width: 400px;
           padding: 24px;
           border-radius: 12px;
+          background: white;
           animation: slideUp 0.3s ease-out;
+        }
+
+        @media (max-width: 640px) {
+          .confirm-modal {
+            width: 100%;
+            max-width: none;
+            position: absolute;
+            bottom: 0;
+            border-radius: 20px 20px 0 0;
+            padding: 32px 24px 24px;
+          }
         }
         .modal-header {
           display: flex;
@@ -57,6 +78,14 @@ const ConfirmModal = ({ isOpen, title = "Confirm Action", message, onConfirm, on
           display: flex;
           justify-content: flex-end;
           gap: 12px;
+        }
+        @media (max-width: 640px) {
+          .modal-footer {
+            flex-direction: column-reverse;
+          }
+          .modal-footer .btn {
+            width: 100%;
+          }
         }
         @keyframes slideUp {
           from { opacity: 0; transform: translateY(20px); }

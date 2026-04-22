@@ -53,7 +53,11 @@ const Sidebar = () => {
   };
 
   const handleItemClick = () => {
-    if (!isOpen) setSidebarOpen(true);
+    if (window.innerWidth <= 640) {
+      setSidebarOpen(false);
+    } else {
+      if (!isOpen) setSidebarOpen(true);
+    }
   };
 
   return (

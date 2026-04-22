@@ -88,7 +88,7 @@ const BarcodeInput = ({ label = "SCAN BARCODE", placeholder = "Scan barcode here
           display: flex;
           align-items: center;
           justify-content: center;
-          height: 38px;
+          min-height: var(--touch-target);
           cursor: pointer;
           transition: 0.3s;
         }

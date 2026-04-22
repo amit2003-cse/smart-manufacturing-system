@@ -31,6 +31,7 @@ const AppSelect = ({ label, dataSource, displayExpr, valueExpr, value, onValueCh
         }
         .app-select-wrapper .dx-selectbox {
           border-radius: 8px;
+          min-height: var(--touch-target);
         }
         .app-select-wrapper .dx-texteditor-input { 
           padding: 10px 12px; 

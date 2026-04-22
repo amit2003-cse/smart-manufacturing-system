@@ -1,5 +1,5 @@
 # 🏭 Smart Manufacturing Management System (SMMS)
-> A next-generation, fixed-viewport manufacturing execution system built for speed, precision, and zero-scroll efficiency.
+> A next-generation, **mobile-first** manufacturing execution system built for speed, precision, and enterprise-grade scalability.
 
 [![React](https://img.shields.io/badge/React-20232A?style=for-the-badge&logo=react&logoColor=61DAFB)](https://reactjs.org/)
 [![Recoil](https://img.shields.io/badge/Recoil-3578E5?style=for-the-badge&logo=recoil&logoColor=white)](https://recoiljs.org/)
@@ -9,7 +9,7 @@
 ---
 
 ## ✨ Overview
-The **Smart Manufacturing Management System** is a production-grade interface designed to handle high-volume barcode scanning, quality control, and logistics. It eliminates traditional page scrolling in favor of a **Pinned-Viewport Architecture**, ensuring that critical headers, filters, and footers remain static while data grids provide internal virtual scrolling.
+The **Smart Manufacturing Management System** is a production-grade interface designed to handle high-volume barcode scanning, quality control, and logistics. This version has been fully transformed into a **Responsive, Mobile-First Application**, ensuring seamless operation across Mobiles, Tablets, and Desktops.
 
 ---
 
@@ -28,7 +28,7 @@ The **Smart Manufacturing Management System** is a production-grade interface de
 ### 📦 Smart Packaging
 *   **Carton Consolidation:** Auto-group 10 unit boxes into a single "Large Box" (Carton).
 *   **Label Engine:** Real-time generation of shipping labels with integrated QR codes and Barcodes.
-*   **Print-Ready UI:** Specialized CSS for direct thermal label printing.
+*   **Print-Ready UI:** Specialized CSS for direct thermal label printing on any device.
 
 ### 🚚 Delivery & Dispatch
 *   **Dual-Flow Validation:** Dispatch via Batch Selection or Barcode Scan Mode.
@@ -37,19 +37,20 @@ The **Smart Manufacturing Management System** is a production-grade interface de
 
 ---
 
-## 🎨 UI/UX Design Philosophy
-*   **Zero-Scroll Layout:** Everything is visible at once. Fixed Header/Footer.
-*   **Glassmorphism & Shadows:** Premium card-based UI with soft elevations.
-*   **Debounced Scanning:** Optimized input handlers for physical barcode scanners (1s debounce).
-*   **Status Tags:** High-contrast semantic colors for QC and Process states.
+## 🎨 UI/UX Responsive Master Plan (New 🔥)
+*   **Mobile-First Architecture:** Fluid layouts that adapt from small handheld scanners to large desktop monitors.
+*   **Adaptive Sidebar:** Interactive drawer for mobile and persistent navigation for desktop.
+*   **Touch-Friendly Targets:** All buttons and inputs follow the 44px minimum touch target standard.
+*   **Optimized DataGrids:** Enterprise-grade grids with horizontal scrolling and column management for small screens.
+*   **Real-time Dashboard:** Live system statistics (Units, Scans, QC, Cartons) connected via Recoil.
 
 ---
 
 ## 🛠️ Technology Stack
 | Layer | Technology |
 | :--- | :--- |
-| **Frontend** | React 18 (Hooks), SCSS |
-| **State Management** | Recoil (with Persistence) |
+| **Frontend** | React 18 (Hooks), SCSS (Modern Design System) |
+| **State Management** | Recoil (with LocalStorage Persistence) |
 | **UI Components** | DevExtreme (Enterprise Grids), Lucide Icons |
 | **Backend/DB** | Firebase Firestore (Real-time Sync) |
 | **Labeling** | BWIP-JS (Barcode Writer in Pure JS) |

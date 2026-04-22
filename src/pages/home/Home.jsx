@@ -1,15 +1,29 @@
 import React from 'react';
 import { Package, Scan, Activity, TrendingUp, ArrowRight } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
+import { useRecoilValue } from 'recoil';
+import { unitBoxesDBState, qcState, combinedBoxesDBState } from '../../store/atoms';
 
 const Home = () => {
   const navigate = useNavigate();
+  const unitBoxes = useRecoilValue(unitBoxesDBState);
+  const qcRecords = useRecoilValue(qcState);
+  const combinedBoxes = useRecoilValue(combinedBoxesDBState);
 
+  const totalUnits = unitBoxes.length;
+  const totalCartons = combinedBoxes.length;
+  
+  // Total Scans (All Time)
+  const totalScansAllTime = unitBoxes.filter(box => box.isScanned).length;
+  
+  // Total QC Raised Requests
+  const totalQCRaised = qcRecords.length;
+  
   const stats = [
-    { title: 'Total Shippers', value: '1,284', icon: <Package size={24} />, color: 'blue' },
-    { title: 'Scanned Today', value: '452', icon: <Scan size={24} />, color: 'green' },
-    { title: 'Pending QC', value: '12', icon: <Activity size={24} />, color: 'orange' },
-    { title: 'Efficiency', value: '+14%', icon: <TrendingUp size={24} />, color: 'purple' },
+    { title: 'Total Unit Boxes', value: totalUnits.toLocaleString(), icon: <Package size={24} />, color: 'blue' },
+    { title: 'Total Scanned Boxes', value: totalScansAllTime.toLocaleString(), icon: <Scan size={24} />, color: 'green' },
+    { title: 'Total QC Raised', value: totalQCRaised.toLocaleString(), icon: <Activity size={24} />, color: 'orange' },
+    { title: 'Total Cartons', value: totalCartons.toLocaleString(), icon: <TrendingUp size={24} />, color: 'purple' },
   ];
 
   return (

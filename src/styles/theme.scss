@@ -6,11 +6,19 @@ $card-bg: #ffffff;
 $text-main: #1e293b;
 $border-color: #e2e8f0;
 
+$mobile: 640px;
+$tablet: 1024px;
+
 :root {
     --primary: #{$primary-color};
     --bg-main: #{$background-color};
-    --card-shadow: 0 4px 6px -1px rgb(0 0 0/ 0.1),0 2px 4px
-    -2px rgb(0 0 0/ 0.1);
+    --card-shadow: 0 4px 6px -1px rgb(0 0 0/ 0.1),0 2px 4px -2px rgb(0 0 0/ 0.1);
+    
+    /* Responsive Foundation Tokens */
+    --spacing-sm: 8px;
+    --spacing-md: 16px;
+    --touch-target: 44px;
+    --container-padding: 16px;
 }
 
 body {

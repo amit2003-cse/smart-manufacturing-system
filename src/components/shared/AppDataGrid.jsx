@@ -1,5 +1,5 @@
-import React from 'react';
-import { DataGrid, Column, Paging, Scrolling, Export } from 'devextreme-react/data-grid';
+import React, { useState, useEffect } from 'react';
+import { DataGrid, Column, Paging, Scrolling, Export, ColumnChooser } from 'devextreme-react/data-grid';
 
 const AppDataGrid = ({ 
   dataSource, 
@@ -9,23 +9,32 @@ const AppDataGrid = ({
   actionWidth = 80,
   allowExport = false 
 }) => {
+  const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
+
+  useEffect(() => {
+    const handleResize = () => setIsMobile(window.innerWidth <= 640);
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
+
   return (
     <div className="app-datagrid-container" style={{ height: height || '100%', display: 'flex', flexDirection: 'column' }}>
       <DataGrid 
         dataSource={dataSource} 
         showBorders={false}
-        columnAutoWidth={true}
+        columnAutoWidth={!isMobile}
         rowAlternationEnabled={true}
         height="100%"
         width="100%"
       >
-        <Scrolling mode="standard" />
+        <Scrolling mode="standard" showScrollbar="always" useNative={isMobile} />
         <Paging enabled={true} defaultPageSize={5} />
         {allowExport && <Export enabled={true} formats={['csv']} allowExportSelectedData={false} />}
+        {isMobile && <ColumnChooser enabled={true} mode="select" />}
         
         {/* Standardized Columns */}
-        <Column dataField="itemCode" caption="Item Code" />
-        <Column dataField="batchCode" caption="Batch Code" />
+        <Column dataField="itemCode" caption="Item Code" minWidth={100} />
+        <Column dataField="batchCode" caption="Batch Code" minWidth={100} />
         
         {/* Unit Box / Box Number */}
         <Column 
@@ -48,7 +57,7 @@ const AppDataGrid = ({
           }} 
         />
         
-        <Column dataField="barcode" caption="Barcode" />
+        <Column dataField="barcode" caption="Barcode" minWidth={150} />
         
         {/* Dynamic Action Column */}
         {showActions && (
@@ -57,6 +66,9 @@ const AppDataGrid = ({
             width={actionWidth} 
             alignment="center"
             cellRender={actionRender}
+            fixed={true}
+            fixedPosition="right"
+            cssClass="action-col-sticky"
           />
         )}
       </DataGrid>

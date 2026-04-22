@@ -142,9 +142,9 @@ const QCRequest = () => {
       </div>
 
       <div className="grid-card card">
-        <div className="section-header" style={{ padding: '0 0 16px 0', borderBottom: '1px solid #f1f5f9', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: '0 0 auto' }}>
+        <div className="section-header">
             <h4 style={{ margin: 0, color: '#1e293b' }}>Scanned for QC ({scannedList.length} / {targetCapacity > 0 ? targetCapacity : '?'})</h4>
-             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+             <div className="header-btn-group">
                 {activeBatch && <span className="batch-tag">{activeBatch.code}</span>}
                 <button 
                     className={`btn btn-success ${loading ? 'btn-loading' : ''}`} 

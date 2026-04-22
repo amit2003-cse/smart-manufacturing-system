@@ -142,7 +142,7 @@ const GenerateShipper = () => {
 
       {/* Filter Section */}
       <div className="filter-card card no-print">
-        <div className="filter-grid" style={{ gridTemplateColumns: '1fr 1fr auto' }}>
+        <div className="filter-grid">
           <AppSelect 
             label="Item Code"
             dataSource={masterData.map(i => i.itemCode)} 
@@ -184,7 +184,7 @@ const GenerateShipper = () => {
       {/* Grid Section */}
       {displayData.length > 0 ? (
         <div className="grid-card card no-print">
-          <div className="grid-header-info" style={{ padding: '0 0 16px 0', borderBottom: '1px solid #f1f5f9', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', flex: '0 0 auto' }}>
+          <div className="grid-header-info">
             <strong>Total Units: {displayData.length}</strong>
             <span style={{ color: '#64748b' }}>Model: {displayData[0].modelName}</span>
           </div>

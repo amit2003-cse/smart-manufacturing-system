@@ -196,7 +196,7 @@ const LargeBoxPacker = () => {
         <div className="grid-section card no-print">
           <div className="section-header">
             <h4>Scanned Items ({currentSession.length} / 10)</h4>
-            <div style={{ display: 'flex', gap: '10px', alignItems: 'center' }}>
+            <div className="header-btn-group">
                 {activeBatch && <span className="batch-tag">{activeBatch.code}</span>}
                 <button onClick={handleClearSession} className="btn btn-secondary" style={{ padding: '4px 10px', minHeight: 'auto', fontSize: '12px' }}>
                     Clear Box
@@ -301,6 +301,13 @@ const LargeBoxPacker = () => {
         .packing-split-container { display: flex; gap: 24px; flex: 1; min-height: 0; }
         .grid-section { flex: 1; display: flex; flex-direction: column; min-height: 0; margin: 0; }
         .preview-section { flex: 1.2; display: flex; flex-direction: column; min-height: 0; margin: 0; }
+        
+        @media (max-width: 1024px) {
+          .packing-split-container { flex-direction: column; height: auto; flex: none; }
+          .grid-section, .preview-section { flex: none; width: 100%; height: 500px; }
+          .preview-section { height: auto; min-height: 400px; }
+        }
+
         .section-header { flex: 0 0 auto; display: flex; justify-content: space-between; align-items: center; padding-bottom: 12px; border-bottom: 1px solid #f1f5f9; margin-bottom: 16px; }
         .batch-tag { background: #eff6ff; color: #1e3a8a; padding: 4px 10px; border-radius: 6px; font-size: 12px; font-weight: 700; }
         .preview-content-box { border: 1px solid #e2e8f0; border-radius: 12px; flex: 1; background: #ffffff; padding: 24px; display: flex; justify-content: center; overflow-y: auto; }

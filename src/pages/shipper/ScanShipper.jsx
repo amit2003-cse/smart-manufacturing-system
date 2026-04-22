@@ -122,9 +122,9 @@ const ScanShipper = () => {
 
       {scannedData.length > 0 ? (
         <div className="grid-card card fade-in">
-          <div className="grid-header-actions" style={{ padding: '0 0 16px 0', borderBottom: '1px solid #f1f5f9', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: '0 0 auto' }}>
+          <div className="grid-header-actions">
              <h4 style={{ margin: 0, color: '#1e293b' }}>Scanned Records ({scannedData.length})</h4>
-             <div style={{ display: 'flex', gap: '12px' }}>
+             <div className="header-btn-group">
                  <button 
                     onClick={() => setShowConfirm(true)} 
                     className={`btn btn-success ${loading ? 'btn-loading' : ''}`} 
