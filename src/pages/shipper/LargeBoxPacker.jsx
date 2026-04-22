@@ -105,40 +105,6 @@ const LargeBoxPacker = () => {
     return true;
   };
 
-  const handleViewScan = async (barcode) => {
-    if (!barcode) return;
-    setLoading(true);
-    try {
-      // Prioritize SSoT Local State
-      const existing = combinedBoxesDB.find(cb => cb.barcode === barcode);
-      if (existing) {
-        setCurrentSession(existing.unitBoxes);
-        setActiveBatch({ itemCode: existing.itemCode, code: existing.batchCode, capacity: existing.unitBoxes.length });
-        setShowPreview(true);
-        toast.info("Carton loaded from Local State.");
-      } else {
-        // Fallback: Check Firestore
-        const docRef = doc(db, "combined_boxes", barcode);
-        const docSnap = await getDoc(docRef);
-        
-        if (docSnap.exists()) {
-          const cartonData = { id: docSnap.id, ...docSnap.data() };
-          setCurrentSession(cartonData.unitBoxes);
-          setActiveBatch({ itemCode: cartonData.itemCode, code: cartonData.batchCode, capacity: cartonData.unitBoxes.length });
-          setShowPreview(true);
-          setCombinedBoxesDB(prev => [...prev, cartonData]);
-          toast.info("Carton loaded from Cloud Database.");
-        } else {
-          toast.error("Packaging not found");
-        }
-      }
-    } catch (e) {
-      toast.error("Error fetching data");
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleFetchExisting = async (itemCode, batchCode) => {
     if (!itemCode || !batchCode) return;
     setLoading(true);
