@@ -29,29 +29,6 @@ export const userState = atom({
     default: {name: 'Amit Kumar', role: 'Senior Developer'},
 });
 
-// Helper to generate initial 80 unit boxes for testing
-const generateInitialData = () => {
-  const initialBoxes = [];
-  masterData.forEach(item => {
-    item.batches.forEach(batch => {
-      for (let i = 1; i <= 10; i++) {
-        const boxNo = i.toString().padStart(3, '0');
-        const barcode = `${item.itemCode}-${batch}-${boxNo}`;
-        initialBoxes.push({
-          id: barcode,
-          itemCode: item.itemCode,
-          batchCode: batch,
-          barcode: barcode,
-          boxNo: boxNo,
-          status: 'GENERATED',
-          createdAt: new Date().toISOString()
-        });
-      }
-    });
-  });
-  return initialBoxes;
-};
-
 const getInitialState = (key, defaultVal) => {
   const saved = localStorage.getItem(key);
   return saved ? JSON.parse(saved) : defaultVal;
@@ -65,7 +42,7 @@ const persistState = (key) => ({ onSet }) => {
 
 export const unitBoxesDBState = atom({
   key: 'unitBoxesDBState_v2',
-  default: getInitialState('unitBoxesDB_v2', generateInitialData()),
+  default: getInitialState('unitBoxesDB_v2', []),
   effects: [persistState('unitBoxesDB_v2')]
 });
 
