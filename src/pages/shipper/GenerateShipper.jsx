@@ -10,9 +10,11 @@ import { masterData } from '../../data/masterData';
 import { unitBoxesDBState } from '../../store/atoms';
 import AppSelect from '../../components/shared/AppSelect';
 import AppDataGrid from '../../components/shared/AppDataGrid';
+import ConfirmModal from '../../components/shared/ConfirmModal';
     
 const GenerateShipper = () => {
   const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [unitBoxesDB, setUnitBoxesDB] = useRecoilState(unitBoxesDBState);
   
   // Persistence Logic only for UI Selection
@@ -38,6 +40,7 @@ const GenerateShipper = () => {
   }, [selectedItem]);
 
   const handleGenerateBatch = async () => {
+    setShowConfirm(false);
     if (!selectedItem || !selectedBatch) return;
     
     setLoading(true);
@@ -167,7 +170,7 @@ const GenerateShipper = () => {
           <div className="filter-actions" style={{ alignSelf: 'flex-end' }}>
             <button 
               className={`btn btn-success ${loading ? 'btn-loading' : ''}`} 
-              onClick={handleGenerateBatch} 
+              onClick={() => setShowConfirm(true)} 
               disabled={loading || !selectedBatch}
               style={{ minWidth: '180px', height: '42px' }}
             >
@@ -254,6 +257,14 @@ const GenerateShipper = () => {
           </div>
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={showConfirm}
+        title="Generate / Load Batch"
+        message={`This will generate or load unit boxes for item ${selectedItem} in batch ${selectedBatch}. Are you sure?`}
+        onConfirm={handleGenerateBatch}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 };

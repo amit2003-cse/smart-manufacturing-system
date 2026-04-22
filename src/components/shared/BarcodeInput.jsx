@@ -8,21 +8,33 @@ const BarcodeInput = ({ label = "SCAN BARCODE", placeholder = "Scan barcode here
   useEffect(() => {
     if (!inputValue) return;
 
-    // 1-second debounce
-    const handler = setTimeout(() => {
-      onScan(inputValue);
-      setInputValue(''); // Clear after trigger
-    }, 1000);
+    // 300ms debounce
+    const handler = setTimeout(async () => {
+      try {
+        const isSuccess = await onScan(inputValue);
+        if (isSuccess !== false) {
+          setInputValue(''); // Clear only if validation succeeds
+        }
+      } catch (e) {
+        // keep input on error
+      }
+    }, 300);
 
     return () => {
       clearTimeout(handler);
     };
   }, [inputValue, onScan]);
 
-  const handleManualSubmit = () => {
+  const handleManualSubmit = async () => {
     if (inputValue) {
-      onScan(inputValue);
-      setInputValue('');
+      try {
+        const isSuccess = await onScan(inputValue);
+        if (isSuccess !== false) {
+          setInputValue('');
+        }
+      } catch (e) {
+        // keep input on error
+      }
     }
   };
 

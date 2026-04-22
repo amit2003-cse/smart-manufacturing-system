@@ -10,10 +10,12 @@ import { masterData } from '../../data/masterData';
 import { unitBoxesDBState, qcState, combinedBoxesDBState } from '../../store/atoms';
 import BarcodeInput from '../../components/shared/BarcodeInput';
 import AppDataGrid from '../../components/shared/AppDataGrid';
+import ConfirmModal from '../../components/shared/ConfirmModal';
 
 const LargeBoxPacker = () => {
   const [loading, setLoading] = useState(false);
   const [showPreview, setShowPreview] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   // Rule: 10 units = 1 Large Box
   const boxCapacity = 10;
@@ -44,25 +46,25 @@ const LargeBoxPacker = () => {
   const currentItemInfo = activeBatch ? masterData.find(i => i.itemCode === activeBatch.itemCode) : null;
 
   const handleScan = (barcode) => {
-    if (!barcode) return;
+    if (!barcode) return false;
     
     // 1. Validate against SSoT (unitBoxesDBState)
     const boxInDB = unitBoxesDB.find(b => b.barcode === barcode);
     if (!boxInDB) {
         toast.error("Invalid Barcode: Box not found in system.");
-        return;
+        return false;
     }
 
     // 2. Validate against QC State
     const qcRecord = qcDB.find(q => q.barcode === barcode);
     if (!qcRecord) {
         toast.error("QC Request not found for this box!");
-        return;
+        return false;
     }
 
     if (qcRecord.status !== 'APPROVED') {
         toast.error(`QC Status: ${qcRecord.status}. Only APPROVED boxes allowed.`);
-        return;
+        return false;
     }
 
     if (!activeBatch) {
@@ -73,31 +75,33 @@ const LargeBoxPacker = () => {
       });
     } else if (boxInDB.batchCode !== activeBatch.code) {
       toast.error(`Batch Mismatch! Expected: ${activeBatch.code}`);
-      return;
+      return false;
     }
 
     if (currentSession.length >= boxCapacity) {
       toast.warning(`Capacity Full! Generate Large Box now.`);
-      return;
+      return false;
     }
 
     if (currentSession.find(b => b.barcode === barcode)) {
       toast.error('Already in this Large Box!');
-      return;
+      return false;
     }
 
     // 3. Verify it hasn't already been packed in another combined box
     const alreadyPacked = combinedBoxesDB.some(cb => cb.unitBoxes.some(ub => ub.barcode === barcode));
     if (alreadyPacked) {
         toast.error('This box has already been packed in another Carton!');
-        return;
+        return false;
     }
 
     setCurrentSession(prev => [...prev, boxInDB]);
     toast.success('Box Validated & Added');
+    return true;
   };
 
   const handleGenerateAndSave = async () => {
+      setShowConfirm(false);
       if (currentSession.length !== boxCapacity) return;
       setLoading(true);
 
@@ -217,7 +221,7 @@ const LargeBoxPacker = () => {
           {!showPreview && (
             <button 
                 className={`btn btn-success ${loading ? 'btn-loading' : ''}`}
-                onClick={handleGenerateAndSave} 
+                onClick={() => setShowConfirm(true)} 
                 disabled={currentSession.length !== boxCapacity || loading}
                 style={{ width: '100%', marginTop: '16px' }}
             >
@@ -284,6 +288,14 @@ const LargeBoxPacker = () => {
           </div>
         </div>
       </div>
+
+      <ConfirmModal 
+        isOpen={showConfirm}
+        title="Generate & Save Carton"
+        message={`This will permanently group ${currentSession.length} units into a single Carton. Are you sure you want to perform this action?`}
+        onConfirm={handleGenerateAndSave}
+        onCancel={() => setShowConfirm(false)}
+      />
 
       <style>{`
         .packing-split-container { display: flex; gap: 24px; flex: 1; min-height: 0; }

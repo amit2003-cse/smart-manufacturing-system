@@ -7,14 +7,17 @@ import { useRecoilState, useRecoilValue } from 'recoil';
 
 import { masterData } from '../../data/masterData';
 import { unitBoxesDBState, qcState } from '../../store/atoms';
-import AppSelect from '../../components/shared/AppSelect';
 import BarcodeInput from '../../components/shared/BarcodeInput';
 import AppDataGrid from '../../components/shared/AppDataGrid';
+import ConfirmModal from '../../components/shared/ConfirmModal';
 
 const QCRequest = () => {
-  const [selectedItem, setSelectedItem] = useState(null);
-  const [selectedBatch, setSelectedBatch] = useState(null);
+  const [activeBatch, setActiveBatch] = useState(() => {
+    const saved = localStorage.getItem('qc_active_batch');
+    return saved ? JSON.parse(saved) : null;
+  });
   const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [targetCapacity] = useState(10);
 
   const unitBoxesDB = useRecoilValue(unitBoxesDBState);
@@ -28,48 +31,56 @@ const QCRequest = () => {
 
   useEffect(() => {
     localStorage.setItem('qc_request_session', JSON.stringify(scannedList));
-  }, [scannedList]);
+    localStorage.setItem('qc_active_batch', JSON.stringify(activeBatch));
+  }, [scannedList, activeBatch]);
 
   // Target capacity is fixed at 10 as per rules
 
   const handleScan = (barcode) => {
-    if (!barcode || !selectedBatch) return;
+    if (!barcode) return false;
     
     // 1. Validate against SSoT (unitBoxesDBState)
     const boxInDB = unitBoxesDB.find(b => b.barcode === barcode);
 
     if (!boxInDB) {
         toast.error("Box not generated! Please generate shipper first.");
-        return;
+        return false;
     }
 
     if (!boxInDB.isScanned) {
         toast.error("Box has not been scanned yet in the Scan Shipper module!");
-        return;
+        return false;
     }
 
-    if (boxInDB.batchCode !== selectedBatch) {
-        toast.error(`Batch Mismatch! Expected: ${selectedBatch}`);
-        return;
+    if (!activeBatch) {
+      setActiveBatch({
+          code: boxInDB.batchCode,
+          itemCode: boxInDB.itemCode
+      });
+    } else if (boxInDB.batchCode !== activeBatch.code) {
+        toast.error(`Batch Mismatch! Expected: ${activeBatch.code}`);
+        return false;
     }
 
     // 2. Validate against existing QC Requests
     const existingQC = qcDB.find(q => q.barcode === barcode);
     if (existingQC) {
         toast.warning(`Box already has QC Request (Status: ${existingQC.status})!`);
-        return;
+        return false;
     }
 
     if (scannedList.find(b => b.barcode === barcode)) {
         toast.warning("Already in current list!");
-        return;
+        return false;
     }
 
     setScannedList(prev => [...prev, { ...boxInDB, timestamp: new Date().toLocaleString() }]);
     toast.success("Box added to QC Request list");
+    return true;
   };
 
   const handleSave = async () => {
+    setShowConfirm(false);
     if (scannedList.length === 0) return;
     setLoading(true);
 
@@ -100,9 +111,8 @@ const QCRequest = () => {
         setQcDB(prev => [...prev, ...newQCRecords]);
 
         setScannedList([]);
-        setSelectedItem(null);
-        setSelectedBatch(null);
-        toast.success("QC Requests saved to System successfully!");
+        setActiveBatch(null);
+        toast.success("QC Requests raised successfully!");
     } catch (e) {
         toast.error("Save Failed. Check network connection.");
     } finally {
@@ -122,31 +132,11 @@ const QCRequest = () => {
       </div>
 
       <div className="filter-card card no-print">
-        <div className="filter-grid" style={{ gridTemplateColumns: '1fr 1fr 2fr' }}>
-          <AppSelect 
-            label="Item Code"
-            dataSource={masterData} 
-            displayExpr="itemCode" 
-            valueExpr="itemCode"
-            value={selectedItem}
-            onValueChanged={e => setSelectedItem(e.value)}
-            placeholder="Select..."
-          />
-          
-          <AppSelect 
-            label="Batch Code"
-            dataSource={masterData.find(i => i.itemCode === selectedItem)?.batches || []}
-            value={selectedBatch}
-            onValueChanged={e => setSelectedBatch(e.value)}
-            disabled={!selectedItem}
-            placeholder="Select..."
-          />
-          
+        <div className="filter-grid" style={{ gridTemplateColumns: '1fr' }}>
           <BarcodeInput 
             label="SCAN BARCODE"
             placeholder="Scan unit box (auto-submits)..."
             onScan={handleScan}
-            disabled={!selectedBatch}
           />
         </div>
       </div>
@@ -154,17 +144,18 @@ const QCRequest = () => {
       <div className="grid-card card">
         <div className="section-header" style={{ padding: '0 0 16px 0', borderBottom: '1px solid #f1f5f9', marginBottom: '16px', display: 'flex', justifyContent: 'space-between', alignItems: 'center', flex: '0 0 auto' }}>
             <h4 style={{ margin: 0, color: '#1e293b' }}>Scanned for QC ({scannedList.length} / {targetCapacity > 0 ? targetCapacity : '?'})</h4>
-            <div style={{ display: 'flex', gap: '12px' }}>
+             <div style={{ display: 'flex', gap: '12px', alignItems: 'center' }}>
+                {activeBatch && <span className="batch-tag">{activeBatch.code}</span>}
                 <button 
                     className={`btn btn-success ${loading ? 'btn-loading' : ''}`} 
-                    onClick={handleSave} 
+                    onClick={() => setShowConfirm(true)} 
                     disabled={!isComplete || loading}
                 >
-                    <Save size={16} /> <span>{loading ? '' : 'Save QC Request'}</span>
+                    <Save size={16} /> <span>{loading ? '' : 'Raise QC Request'}</span>
                 </button>
                 <button 
                     className="btn btn-secondary" 
-                    onClick={() => setScannedList([])}
+                    onClick={() => { setScannedList([]); setActiveBatch(null); }}
                 >
                     <XCircle size={14} />
                     <span>Clear</span>
@@ -187,6 +178,13 @@ const QCRequest = () => {
             )}
         />
       </div>
+      <ConfirmModal 
+        isOpen={showConfirm}
+        title="Raise QC Request"
+        message={`This will raise a QC Request for ${scannedList.length} boxes from batch ${activeBatch?.code}. Are you sure you want to perform this action?`}
+        onConfirm={handleSave}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 };

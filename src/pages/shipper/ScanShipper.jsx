@@ -8,9 +8,11 @@ import { useRecoilState } from 'recoil';
 import { unitBoxesDBState } from '../../store/atoms';
 import BarcodeInput from '../../components/shared/BarcodeInput';
 import AppDataGrid from '../../components/shared/AppDataGrid';
+import ConfirmModal from '../../components/shared/ConfirmModal';
 
 const ScanShipper = () => {
   const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
   const [unitBoxesDB, setUnitBoxesDB] = useRecoilState(unitBoxesDBState);
 
   // Session History (Local UI only, cleared on Save)
@@ -24,24 +26,24 @@ const ScanShipper = () => {
   }, [scannedData]);
 
   const handleScan = (barcode) => {
-    if (!barcode) return;
+    if (!barcode) return false;
 
     // 1. Validate against SSoT (unitBoxesDBState)
     const boxInDB = unitBoxesDB.find(b => b.barcode === barcode);
 
     if (!boxInDB) {
       toast.error("Box not generated! Please generate shipper first.");
-      return;
+      return false;
     }
 
     if (boxInDB.isScanned) {
       toast.warning("This box is already marked as scanned in the system!");
-      return;
+      return false;
     }
 
     if (scannedData.find(item => item.barcode === barcode)) {
       toast.warning('Already scanned in this current session!');
-      return;
+      return false;
     }
 
     const newItem = {
@@ -51,6 +53,7 @@ const ScanShipper = () => {
     
     setScannedData(prev => [newItem, ...prev]);
     toast.success('Box Scanned Successfully (Pending Save)');
+    return true;
   };
 
   const removeScan = (barcode) => {
@@ -58,6 +61,7 @@ const ScanShipper = () => {
   };
 
   const handleSaveData = async () => {
+    setShowConfirm(false);
     if (scannedData.length === 0) return;
     setLoading(true);
 
@@ -122,7 +126,7 @@ const ScanShipper = () => {
              <h4 style={{ margin: 0, color: '#1e293b' }}>Scanned Records ({scannedData.length})</h4>
              <div style={{ display: 'flex', gap: '12px' }}>
                  <button 
-                    onClick={handleSaveData} 
+                    onClick={() => setShowConfirm(true)} 
                     className={`btn btn-success ${loading ? 'btn-loading' : ''}`} 
                     disabled={loading}
                  >
@@ -160,6 +164,14 @@ const ScanShipper = () => {
             Waiting for first scan...
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={showConfirm}
+        title="Save Scanned Data"
+        message={`This will mark ${scannedData.length} boxes as scanned in the system. Are you sure you want to perform this action?`}
+        onConfirm={handleSaveData}
+        onCancel={() => setShowConfirm(false)}
+      />
     </div>
   );
 };

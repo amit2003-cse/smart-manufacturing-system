@@ -8,6 +8,7 @@ import { useRecoilState } from 'recoil';
 import { qcState } from '../../store/atoms';
 import AppSelect from '../../components/shared/AppSelect';
 import AppDataGrid from '../../components/shared/AppDataGrid';
+import ConfirmModal from '../../components/shared/ConfirmModal';
 
 const QCDecision = () => {
   const [selectedItem, setSelectedItem] = useState(null);
@@ -15,6 +16,7 @@ const QCDecision = () => {
   const [filteredList, setFilteredList] = useState([]);
   const [sessionChanges, setSessionChanges] = useState({}); 
   const [loading, setLoading] = useState(false);
+  const [showConfirm, setShowConfirm] = useState(false);
 
   const [qcDB, setQcDB] = useRecoilState(qcState);
 
@@ -58,6 +60,7 @@ const QCDecision = () => {
   };
 
   const handleSaveDecisions = async () => {
+    setShowConfirm(false);
     if (Object.keys(sessionChanges).length === 0) return;
     setLoading(true);
 
@@ -151,8 +154,8 @@ const QCDecision = () => {
                 </button>
                 <button 
                     className={`btn btn-success ${loading ? 'btn-loading' : ''}`}
-                    onClick={handleSaveDecisions}
-                    disabled={loading}
+                    onClick={() => setShowConfirm(true)}
+                    disabled={loading || Object.keys(sessionChanges).length === 0}
                     style={{ marginLeft: '8px' }}
                 >
                     <Save size={16} /> <span>{loading ? '' : 'Save Decisions'}</span>
@@ -206,6 +209,14 @@ const QCDecision = () => {
             />
         </div>
       )}
+
+      <ConfirmModal 
+        isOpen={showConfirm}
+        title="Save QC Decisions"
+        message={`This will save ${Object.keys(sessionChanges).length} decisions to the system. Are you sure you want to perform this action?`}
+        onConfirm={handleSaveDecisions}
+        onCancel={() => setShowConfirm(false)}
+      />
 
       <style>{`
         .action-btn-qc { border: none; padding: 6px 12px; border-radius: 4px; display: flex; align-items: center; gap: 5px; cursor: pointer; font-size: 12px; font-weight: 600; transition: 0.2s; }

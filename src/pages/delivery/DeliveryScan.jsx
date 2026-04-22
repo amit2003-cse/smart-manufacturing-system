@@ -55,7 +55,7 @@ const DeliveryScan = () => {
 
   // Option B: Barcode Based - Show ONLY the matched combined box info
   const handleScanBarcode = (barcode) => {
-    if (!barcode) return;
+    if (!barcode) return false;
     const cleanBarcode = barcode.trim();
 
     const carton = combinedBoxesDB.find(c => c.barcode === cleanBarcode);
@@ -63,7 +63,7 @@ const DeliveryScan = () => {
     if (!carton) {
         toast.error("Invalid barcode. This module only accepts Combined (Large Box) barcodes from Packaging.");
         setDisplayData([]);
-        return;
+        return false;
     }
 
     // Extract all unit boxes from the matched carton
@@ -75,6 +75,7 @@ const DeliveryScan = () => {
     setGridContext('unit_list');
     setDisplayData(unitBoxes);
     toast.success(`Carton Found: ${carton.barcode} (${unitBoxes.length} Units)`);
+    return true;
   };
 
   const handleExportCSV = () => {
