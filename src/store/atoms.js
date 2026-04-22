@@ -1,5 +1,4 @@
 import { atom } from 'recoil';
-import { masterData } from '../data/masterData';
 
 // Authentication State
 const getInitialAuthState = () => {
