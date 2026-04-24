@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+.venv/
+venv/
+ENV/
+env/
+.env
+
+# Vector Store (Local Index)
+vectorstore/*.bin
+vectorstore/*.json
+!vectorstore/.gitkeep
+
+# Data (Processed/Chunks)
+data/processed/
+data/raw/*
+!data/raw/.gitkeep
+
+# IDEs
+.vscode/
+.idea/
+.vs/
+*.swp
+*.swo

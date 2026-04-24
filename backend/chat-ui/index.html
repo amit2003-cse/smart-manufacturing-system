@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manufacturing Assistant — RAG Chat</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+    <div id="app">
+        <aside id="sidebar" class="sidebar">
+            <div class="sidebar-header">
+                <div class="logo">
+                    <div class="logo-icon">⚙️</div>
+                    <div class="logo-text"><h1>MFG Assistant</h1><span class="logo-subtitle">RAG-Powered</span></div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h3 class="section-title">Module Filter</h3>
+                <div class="filter-buttons">
+                    <button class="filter-btn active" data-filter="">All Modules</button>
+                    <button class="filter-btn" data-filter="packaging">📦 Packaging</button>
+                    <button class="filter-btn" data-filter="qc">🔬 QC</button>
+                    <button class="filter-btn" data-filter="general">📄 General</button>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h3 class="section-title">System Status</h3>
+                <div id="system-status" class="status-card">
+                    <div class="status-row"><span class="status-dot" id="status-dot"></span><span id="status-text">Checking...</span></div>
+                    <div class="status-details" id="status-details"></div>
+                </div>
+            </div>
+            <div class="sidebar-section">
+                <h3 class="section-title">Upload Document</h3>
+                <div class="upload-zone" id="upload-zone">
+                    <input type="file" id="file-input" accept=".pdf" hidden>
+                    <div class="upload-icon">📄</div>
+                    <p class="upload-text">Drop PDF or <span class="upload-link">browse</span></p>
+                    <div class="upload-progress" id="upload-progress" style="display:none">
+                        <div class="progress-bar"><div class="progress-fill" id="progress-fill"></div></div>
+                        <span class="progress-text" id="progress-text">Uploading...</span>
+                    </div>
+                </div>
+            </div>
+            <div class="sidebar-footer">
+                <span>📊 <span id="stat-chunks">0</span> chunks</span>
+                <span>📄 <span id="stat-docs">0</span> docs</span>
+            </div>
+        </aside>
+        <main class="chat-main">
+            <header class="chat-header">
+                <button class="menu-toggle" id="menu-toggle">☰</button>
+                <div class="header-info"><h2>Manufacturing Operations Assistant</h2><p class="header-subtitle">Answers grounded in your documents — zero hallucination</p></div>
+                <button class="clear-btn" id="clear-chat" title="Clear chat">🗑️</button>
+            </header>
+            <div class="chat-messages" id="chat-messages">
+                <div class="welcome-screen" id="welcome-screen">
+                    <div class="welcome-icon">🏭</div>
+                    <h2>Manufacturing Operations Assistant</h2>
+                    <p>Ask me anything about your SOPs, QC rules, and packaging. I answer <strong>only</strong> from uploaded documents.</p>
+                    <div class="quick-actions">
+                        <button class="quick-btn" data-query="What documents are available?">📋 Documents</button>
+                        <button class="quick-btn" data-query="What are the key packaging rules?">📦 Packaging</button>
+                        <button class="quick-btn" data-query="What quality checks are required?">🔬 QC Checks</button>
+                    </div>
+                </div>
+            </div>
+            <div class="chat-input-area">
+                <div class="input-container">
+                    <textarea id="chat-input" placeholder="Ask about your manufacturing documents..." rows="1" autofocus></textarea>
+                    <button id="send-btn" class="send-btn" disabled>➤</button>
+                </div>
+                <p class="input-hint"><kbd>Enter</kbd> send · <kbd>Shift+Enter</kbd> new line</p>
+            </div>
+        </main>
+    </div>
+    <script src="/static/app.js"></script>
+</body>
+</html>
