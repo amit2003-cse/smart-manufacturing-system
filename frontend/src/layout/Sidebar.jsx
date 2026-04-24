@@ -15,33 +15,33 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Home', path: '/home', icon: <LayoutDashboard size={20} /> },
     { 
-      name: 'Production', 
+      name: 'Wire Production', 
       id: 'production',
       icon: <Factory size={20} />, 
       subItems: [
-        { name: 'Generate Shipper', path: '/shipper/generate', icon: <Package size={18} /> },
-        { name: 'Scan Shipper', path: '/shipper/scan', icon: <Scan size={18} /> },
+        { name: 'Generate Reel Labels', path: '/shipper/generate', icon: <Package size={18} /> },
+        { name: 'Scan Reel', path: '/shipper/scan', icon: <Scan size={18} /> },
       ]
     },
     {
-      name: 'Quality Control',
+      name: 'Quality Check',
       id: 'qc',
       icon: <CheckCircle2 size={20} />,
       subItems: [
-        { name: 'QC Request', path: '/qc/request', icon: <AlertCircle size={18} /> },
-        { name: 'QC Decision', path: '/qc/decision', icon: <CheckCircle size={18} /> },
+        { name: 'Wire QC Request', path: '/qc/request', icon: <AlertCircle size={18} /> },
+        { name: 'Wire QC Decision', path: '/qc/decision', icon: <CheckCircle size={18} /> },
       ]
     },
     { 
-      name: 'Delivery', 
+      name: 'Wire Dispatch', 
       id: 'delivery',
       icon: <Package size={20} />, 
       subItems: [
-        { name: 'Packaging', path: '/shipper/packaging', icon: <Package size={18} /> },
-        { name: 'Delivery Scanning', path: '/delivery/scan', icon: <Scan size={18} /> },
+        { name: 'Master Spool Packer', path: '/shipper/packaging', icon: <Package size={18} /> },
+        { name: 'Dispatch Scanning', path: '/delivery/scan', icon: <Scan size={18} /> },
       ]
     },
-    { name: 'System Assistant', path: '/assistant', icon: <MessageCircle size={20} /> },
+    { name: 'AI System Assistant', path: '/assistant', icon: <MessageCircle size={20} /> },
   ];
 
   const toggleSubmenu = (id) => {
@@ -65,6 +65,9 @@ const Sidebar = () => {
     <aside className={`main-sidebar ${isOpen ? 'open' : 'collapsed'}`}>
       <nav className="nav-menu">
         {menuItems.map((item) => {
+          // Hide all icons except Home when sidebar is closed
+          if (!isOpen && item.name !== 'Home') return null;
+
           const isParentActive = item.subItems?.some(sub => location.pathname.includes(sub.path));
           // Removed unused isActive
 
@@ -119,10 +122,12 @@ const Sidebar = () => {
       </nav>
 
       <div className="sidebar-footer">
-        <button className="logout-btn" onClick={() => setAuth(false)}>
-          <LogOut size={20} />
-          {isOpen && <span>Logout</span>}
-        </button>
+        {isOpen && (
+          <button className="logout-btn" onClick={() => setAuth(false)}>
+            <LogOut size={20} />
+            <span>Logout</span>
+          </button>
+        )}
       </div>
     </aside>
   );

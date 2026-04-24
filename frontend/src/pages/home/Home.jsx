@@ -47,17 +47,17 @@ const Home = () => {
   const totalQCRaised = qcRecords.length;
   
   const stats = [
-    { title: 'Total Unit Boxes', value: totalUnits.toLocaleString(), icon: <Package size={24} />, color: 'blue' },
-    { title: 'Total Scanned Boxes', value: totalScansAllTime.toLocaleString(), icon: <Scan size={24} />, color: 'green' },
-    { title: 'Total QC Raised', value: totalQCRaised.toLocaleString(), icon: <Activity size={24} />, color: 'orange' },
-    { title: 'Total Cartons', value: totalCartons.toLocaleString(), icon: <TrendingUp size={24} />, color: 'purple' },
+    { title: 'Total Reels Generated', value: totalUnits.toLocaleString(), icon: <Package size={24} />, color: 'blue' },
+    { title: 'Total Scanned Reels', value: totalScansAllTime.toLocaleString(), icon: <Scan size={24} />, color: 'green' },
+    { title: 'Total QC Requests', value: totalQCRaised.toLocaleString(), icon: <Activity size={24} />, color: 'orange' },
+    { title: 'Total Master Spools', value: totalCartons.toLocaleString(), icon: <TrendingUp size={24} />, color: 'purple' },
   ];
 
   return (
     <div className="dashboard-container fade-in">
       <div className="welcome-banner">
-        <h1>Welcome Back, Admin! 👋</h1>
-        <p>Here is what's happening in the system today.</p>
+        <h1>Wire Manufacturing Hub 👋</h1>
+        <p>Real-time monitoring of reel production and dispatch operations.</p>
       </div>
 
       {/* Stats Grid */}
@@ -74,20 +74,20 @@ const Home = () => {
       </div>
 
       {/* Quick Actions */}
-      <h3 className="section-title">Quick Actions</h3>
+      <h3 className="section-title">Operations</h3>
       <div className="actions-grid">
         <div className="action-card" onClick={() => navigate('/shipper/generate')}>
           <div className="action-content">
-            <h4>Generate Shipper</h4>
-            <p>Create new barcodes and shipping labels</p>
+            <h4>Generate Reel Label</h4>
+            <p>Create new barcodes for wire reels</p>
           </div>
           <ArrowRight size={20} />
         </div>
 
         <div className="action-card" onClick={() => navigate('/shipper/scan')}>
           <div className="action-content">
-            <h4>Scan Barcode</h4>
-            <p>Verify and track existing shippers</p>
+            <h4>Scan Reel</h4>
+            <p>Verify and track individual wire reels</p>
           </div>
           <ArrowRight size={20} />
         </div>

@@ -4,24 +4,31 @@ import { ArrowLeft, Send, Bot, User, Sparkles, MessageCircle, HelpCircle } from 
 import './Chatbot.scss';
 
 const EXAMPLE_QUERIES = [
-  { text: "What are the packaging rules?", icon: "📦" },
-  { text: "What quality checks are required?", icon: "🔬" },
-  { text: "Is batch mixing allowed?", icon: "🏭" },
-  { text: "What are the SOP guidelines?", icon: "📋" },
+  { text: "Troubleshoot Wire Drawing Machine", icon: "⚙️" },
+  { text: "Annealing Machine safety steps", icon: "🔥" },
+  { text: "Extrusion parameter settings", icon: "🏭" },
+  { text: "Bunching Machine maintenance", icon: "📋" },
 ];
 
 const API_URL = "http://localhost:8000";
 
 const Chatbot = () => {
   const navigate = useNavigate();
-  const [messages, setMessages] = useState([]);
+  
+  // Initialize messages from Session Storage or empty array
+  const [messages, setMessages] = useState(() => {
+    const savedMessages = sessionStorage.getItem('ai_chat_history');
+    return savedMessages ? JSON.parse(savedMessages) : [];
+  });
+  
   const [input, setInput] = useState('');
   const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
   const inputRef = useRef(null);
 
-  // Auto-scroll to bottom on new messages
+  // Save messages to Session Storage whenever they change
   useEffect(() => {
+    sessionStorage.setItem('ai_chat_history', JSON.stringify(messages));
     messagesEndRef.current?.scrollIntoView({ behavior: 'smooth' });
   }, [messages]);
 
@@ -114,8 +121,8 @@ const Chatbot = () => {
         <div className="header-center">
           <Bot size={22} />
           <div>
-            <h2>System Assistant</h2>
-            <span className="header-status">Powered by AI — answers from your documents only</span>
+            <h2>Wire Manufacturing AI Knowledge Base</h2>
+            <span className="header-status">Machine Guidance and Troubleshooting Context</span>
           </div>
         </div>
       </div>
@@ -129,25 +136,24 @@ const Chatbot = () => {
             <div className="welcome-icon-container">
               <Sparkles size={40} className="welcome-sparkle" />
             </div>
-            <h2>How can I help you?</h2>
-            <p>
-              Ask any question about your manufacturing SOPs, quality control rules,
-              packaging procedures, or system operations. I will find the answer from 
-              your uploaded documents.
+            <h2>Plant Machine Assistant</h2>
+            <p style={{ maxWidth: '600px', margin: '0 auto 20px' }}>
+              I am trained to help with troubleshooting and operational guidance for 
+              <strong> Wire Drawing, Annealing, Bunching, Extrusion, Coiling, and Packaging </strong> machines.
             </p>
 
-            <div className="help-tips">
+            <div className="help-tips" style={{ gridTemplateColumns: '1fr', maxWidth: '500px', margin: '0 auto 24px' }}>
               <div className="tip-item">
                 <HelpCircle size={16} />
-                <span>I only answer from system documents — no guessing</span>
+                <span>Always prioritize safety before taking any mechanical action.</span>
               </div>
               <div className="tip-item">
                 <MessageCircle size={16} />
-                <span>Ask in Hindi or English — I understand both</span>
+                <span>Please identify the machine type for accurate step-by-step guidance.</span>
               </div>
             </div>
 
-            <h4 className="examples-title">Try asking:</h4>
+            <h4 className="examples-title">Troubleshoot by Machine:</h4>
             <div className="example-queries">
               {EXAMPLE_QUERIES.map((q, i) => (
                 <button
