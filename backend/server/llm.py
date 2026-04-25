@@ -51,8 +51,8 @@ class LLMEngine:
                 print("WARNING: GROQ_API_KEY is not set.")
             else:
                 import httpx
-                # Manually create a client with NO proxies to bypass Render conflicts
-                http_client = httpx.Client(proxies=None)
+                # 🛡️ THE ULTIMATE FIX: Disable environment-based proxies entirely
+                http_client = httpx.Client(trust_env=False)
                 
                 self.groq_client = Groq(
                     api_key=GROQ_API_KEY,
