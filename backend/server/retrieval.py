@@ -5,35 +5,35 @@ Retrieval module — FAISS vector search with metadata filtering.
 import json
 import faiss
 import numpy as np
-from sentence_transformers import SentenceTransformer
+import google.generativeai as genai
 
 from server.config import (
     FAISS_INDEX_PATH, 
     METADATA_PATH, 
-    EMBEDDING_MODEL, 
-    TOP_K
+    TOP_K,
+    GEMINI_API_KEY
 )
 
 
 class RetrievalEngine:
     """
-    Handles embedding queries and searching the FAISS vector store.
-    Supports metadata-based filtering for module-specific results.
+    Handles embedding queries via Google Gemini API and searching the FAISS vector store.
     """
     
     def __init__(self):
-        self.model = None
         self.index = None
         self.metadata = None
         self._loaded = False
     
     def load(self):
-        """Load embedding model, FAISS index, and metadata into memory."""
+        """Load FAISS index and metadata into memory."""
         if self._loaded:
             return
         
-        print("Loading embedding model...")
-        self.model = SentenceTransformer(EMBEDDING_MODEL)
+        # Configure Gemini
+        if not GEMINI_API_KEY:
+            print("WARNING: GEMINI_API_KEY not found. Embeddings will fail.")
+        genai.configure(api_key=GEMINI_API_KEY)
         
         print("Loading FAISS index...")
         self.index = faiss.read_index(FAISS_INDEX_PATH)
@@ -43,12 +43,16 @@ class RetrievalEngine:
             self.metadata = json.load(f)
         
         self._loaded = True
-        print(f"Retrieval engine ready. {self.index.ntotal} vectors loaded.")
+        print(f"Retrieval engine ready (Gemini Embeddings). {self.index.ntotal} vectors loaded.")
     
     def embed_query(self, query: str) -> np.ndarray:
-        """Convert a text query into a vector embedding."""
-        embedding = self.model.encode([query])
-        return np.array(embedding).astype("float32")
+        """Convert a text query into a vector embedding using Gemini API."""
+        result = genai.embed_content(
+            model="models/gemini-embedding-001",
+            content=query,
+            task_type="retrieval_query"
+        )
+        return np.array([result['embedding']]).astype("float32")
     
     def search(self, query: str, top_k: int = None, module_filter: str = None) -> list:
         """
