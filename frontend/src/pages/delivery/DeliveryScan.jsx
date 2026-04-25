@@ -113,19 +113,21 @@ const DeliveryScan = () => {
         </p>
       </div>
 
-      <div className="tabs-container no-print">
-        <button 
-            className={`tab-btn ${activeTab === 'scan' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('scan'); setDisplayData([]); }}
-        >
-            Barcode Scan Mode
-        </button>
-        <button 
-            className={`tab-btn ${activeTab === 'select' ? 'active' : ''}`}
-            onClick={() => { setActiveTab('select'); setDisplayData([]); }}
-        >
-            Batch Selection Mode
-        </button>
+      <div className="segmented-control-container no-print">
+        <div className="segmented-control">
+          <button 
+              className={`segmented-item ${activeTab === 'scan' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('scan'); setDisplayData([]); }}
+          >
+              Barcode Scan Mode
+          </button>
+          <button 
+              className={`segmented-item ${activeTab === 'select' ? 'active' : ''}`}
+              onClick={() => { setActiveTab('select'); setDisplayData([]); }}
+          >
+              Batch Selection Mode
+          </button>
+        </div>
       </div>
 
       <div className="filter-card card no-print">
@@ -189,6 +191,18 @@ const DeliveryScan = () => {
             <span>No data to display. Please scan or select filters.</span>
         </div>
       )}
+      <style>{`
+        /* Segmented Control Styles (Matched with Packaging) */
+        .segmented-control-container { display: flex; justify-content: center; margin-bottom: 24px; }
+        .segmented-control { display: flex; background: #f1f5f9; padding: 4px; border-radius: 12px; gap: 4px; width: 100%; max-width: 500px; }
+        .segmented-item { flex: 1; border: none; background: none; padding: 10px 20px; border-radius: 8px; font-size: 14px; font-weight: 600; color: #64748b; cursor: pointer; transition: all 0.2s; }
+        .segmented-item:hover { color: #1e293b; }
+        .segmented-item.active { background: white; color: #1e3a8a; box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1); }
+        
+        @media (max-width: 640px) {
+          .segmented-control { flex-direction: column; }
+        }
+      `}</style>
     </div>
   );
 };

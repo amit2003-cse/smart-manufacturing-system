@@ -66,7 +66,10 @@ const Sidebar = () => {
       <nav className="nav-menu">
         {menuItems.map((item) => {
           // Hide all icons except Home when sidebar is closed
-          if (!isOpen && item.name !== 'Home') return null;
+          if (!isOpen) {
+            if (location.pathname === '/home') return null;
+            if (item.name !== 'Home') return null;
+          }
 
           const isParentActive = item.subItems?.some(sub => location.pathname.includes(sub.path));
           // Removed unused isActive

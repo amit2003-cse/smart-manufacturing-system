@@ -11,7 +11,7 @@ const EXAMPLE_QUERIES = [
 ];
 
 const API_URL = window.location.hostname === 'localhost' 
-  ? "http://localhost:8000" 
+  ? "http://localhost:10000" 
   : "https://smart-manufacturing-system.onrender.com";
 
 const Chatbot = () => {
@@ -48,18 +48,43 @@ const Chatbot = () => {
     setIsLoading(true);
 
     try {
-      const res = await fetch(`${API_URL}/chat`, {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          query: query,
-          chat_history: messages.slice(-6).map(m => ({
-            role: m.role === 'user' ? 'user' : 'assistant',
-            content: m.content
-          })),
-          top_k: 5,
-        }),
-      });
+      let targetUrl = `${API_URL}/chat`;
+      let res;
+
+      try {
+        res = await fetch(targetUrl, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: query,
+            chat_history: messages.slice(-6).map(m => ({
+              role: m.role === 'user' ? 'user' : 'assistant',
+              content: m.content
+            })),
+            top_k: 5,
+          }),
+        });
+      } catch (localErr) {
+        // If localhost fails, fallback to Render URL
+        if (window.location.hostname === 'localhost') {
+            console.warn("Local backend not found, falling back to Render...");
+            targetUrl = "https://smart-manufacturing-system.onrender.com/chat";
+            res = await fetch(targetUrl, {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    query: query,
+                    chat_history: messages.slice(-6).map(m => ({
+                        role: m.role === 'user' ? 'user' : 'assistant',
+                        content: m.content
+                    })),
+                    top_k: 5,
+                }),
+            });
+        } else {
+            throw localErr;
+        }
+      }
 
       if (!res.ok) {
         const err = await res.json().catch(() => ({}));

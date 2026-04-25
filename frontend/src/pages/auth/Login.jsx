@@ -59,6 +59,13 @@ const Login = () => {
               type="password" 
               placeholder="******"
               onChange={(e) => setCredentials({...credentials, password: e.target.value})}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  handleLogin(e);
+                } else if (e.key === 'ArrowUp') {
+                  document.querySelector('input[type="text"]').focus();
+                }
+              }}
               required
             />
           </div>

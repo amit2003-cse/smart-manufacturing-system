@@ -32,6 +32,7 @@ const GenerateShipper = () => {
   }, [selectedItem, selectedBatch, displayData]);
 
   const [showModal, setShowModal] = useState(false);
+  const [showBulkModal, setShowBulkModal] = useState(false);
   const [selectedRecord, setSelectedRecord] = useState(null);
 
   const availableBatches = useMemo(() => {
@@ -48,66 +49,41 @@ const GenerateShipper = () => {
     if (!selectedItem || !selectedBatch) return;
     setLoading(true);
     try {
-      // Prioritize SSoT Local State
       const localExisting = unitBoxesDB.filter(b => b.itemCode === selectedItem && b.batchCode === selectedBatch);
       if (localExisting.length > 0) {
         setDisplayData(localExisting);
         toast.info(`Loaded ${localExisting.length} unit boxes.`);
       } else {
-        // Fallback Check Firestore
-        const q = query(
-          collection(db, "unit_boxes"), 
-          where("itemCode", "==", selectedItem), 
-          where("batchCode", "==", selectedBatch)
-        );
+        const q = query(collection(db, "unit_boxes"), where("itemCode", "==", selectedItem), where("batchCode", "==", selectedBatch));
         const querySnapshot = await getDocs(q);
-        
         if (!querySnapshot.empty) {
           const existing = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
           setDisplayData(existing);
-          // Sync SSoT
           const otherBatches = unitBoxesDB.filter(b => !(b.itemCode === selectedItem && b.batchCode === selectedBatch));
           setUnitBoxesDB([...otherBatches, ...existing]);
-          toast.info(`Loaded ${existing.length} unit boxes from Cloud Database.`);
+          toast.info(`Loaded ${existing.length} unit boxes from Cloud.`);
         } else {
-          toast.error("No records found in database.");
+          toast.error("No records found.");
         }
       }
-    } catch (error) {
-      toast.error("Error fetching data.");
-    } finally {
-      setLoading(false);
-    }
+    } catch (error) { toast.error("Error fetching data."); }
+    finally { setLoading(false); }
   };
 
   const handleGenerateBatch = async () => {
     setShowConfirm(false);
     if (!selectedItem || !selectedBatch) return;
-    
     setLoading(true);
     const itemInfo = masterData.find(i => i.itemCode === selectedItem);
-    
     try {
-        // Ultimate Duplicate Check in Cloud
-        const q = query(
-          collection(db, "unit_boxes"), 
-          where("itemCode", "==", selectedItem), 
-          where("batchCode", "==", selectedBatch)
-        );
+        const q = query(collection(db, "unit_boxes"), where("itemCode", "==", selectedItem), where("batchCode", "==", selectedBatch));
         const querySnapshot = await getDocs(q);
-        
         if (!querySnapshot.empty) {
-          toast.warning("This batch already exists in the cloud! Use Search instead.");
-          const existing = querySnapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
-          setDisplayData(existing);
-          const otherBatches = unitBoxesDB.filter(b => !(b.itemCode === selectedItem && b.batchCode === selectedBatch));
-          setUnitBoxesDB([...otherBatches, ...existing]);
+          toast.warning("Batch already exists! Use Search.");
           return;
         }
-
         const newBoxes = [];
         const batch = writeBatch(db);
-        
         for (let i = 1; i <= itemInfo.boxCapacity; i++) {
           const sequence = String(i).padStart(3, '0');
           const barcode = `${selectedItem}-${selectedBatch}-U${sequence}`;
@@ -122,41 +98,55 @@ const GenerateShipper = () => {
             isPacked: false,
             createdAt: new Date().toISOString()
           };
-          
           const docRef = doc(collection(db, "unit_boxes"));
           batch.set(docRef, boxData);
           newBoxes.push({ id: docRef.id, ...boxData });
         }
-
         await batch.commit();
-        setUnitBoxesDB(prev => [...prev, ...newBoxes]); // Sync to SSoT
+        setUnitBoxesDB(prev => [...prev, ...newBoxes]);
         setDisplayData(newBoxes);
-        toast.success(`Generated and Saved ${itemInfo.boxCapacity} boxes to System!`);
-    } catch (error) {
-      console.error("Error:", error);
-      toast.error("Failed to process request.");
-    } finally {
-      setLoading(false);
-    }
+        toast.success(`Generated ${itemInfo.boxCapacity} boxes!`);
+    } catch (error) { toast.error("Failed to generate."); }
+    finally { setLoading(false); }
   };
 
-  // Barcode Generation Effect
+  // Single Barcode Generation Effect
   useEffect(() => {
     if (showModal && selectedRecord) {
-      try {
-        bwipjs.toCanvas('barcodeCanvas', {
-          bcid: 'code128',
-          text: selectedRecord.barcode,
-          scale: 3,
-          height: 12,
-          includetext: true,
-          textxalign: 'center',
-        });
-      } catch (e) {
-        console.error("Barcode Error:", e);
-      }
+      setTimeout(() => {
+        try {
+          bwipjs.toCanvas('barcodeCanvas', {
+            bcid: 'code128',
+            text: selectedRecord.barcode,
+            scale: 3,
+            height: 12,
+            includetext: true,
+            textxalign: 'center',
+          });
+        } catch (e) { console.error(e); }
+      }, 100);
     }
   }, [showModal, selectedRecord]);
+
+  // Bulk Barcode Generation Effect
+  useEffect(() => {
+    if (showBulkModal && displayData.length > 0) {
+      setTimeout(() => {
+        displayData.forEach((record, index) => {
+          try {
+            bwipjs.toCanvas(`bulk-barcode-${index}`, {
+              bcid: 'code128',
+              text: record.barcode,
+              scale: 2,
+              height: 10,
+              includetext: true,
+              textxalign: 'center',
+            });
+          } catch (e) { console.error(`Bulk Barcode Error (${index}):`, e); }
+        });
+      }, 300);
+    }
+  }, [showBulkModal, displayData]);
 
   return (
     <div className="page-container fade-in">
@@ -220,9 +210,19 @@ const GenerateShipper = () => {
       {/* Grid Section */}
       {displayData.length > 0 ? (
         <div className="grid-card card no-print">
-          <div className="grid-header-info">
-            <strong>Total Units: {displayData.length}</strong>
-            <span style={{ color: '#64748b' }}>Model: {displayData[0].modelName}</span>
+          <div className="grid-header-info" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', gap: '20px', alignItems: 'center' }}>
+                <strong>Total Units: {displayData.length}</strong>
+                <span style={{ color: '#64748b' }}>Model: {displayData[0].modelName}</span>
+            </div>
+            <button 
+              className="btn btn-primary" 
+              onClick={() => setShowBulkModal(true)}
+              style={{ padding: '8px 16px' }}
+            >
+              <Printer size={16} />
+              <span>Print All Labels</span>
+            </button>
           </div>
           <AppDataGrid 
             dataSource={displayData}
@@ -251,10 +251,10 @@ const GenerateShipper = () => {
         )
       )}
 
-      {/* Modern Barcode Modal */}
+      {/* Single Barcode Modal */}
       {showModal && (
         <div className="modal-overlay">
-          <div className="barcode-card print-area">
+          <div className="barcode-card print-area single-label">
             <div className="card-header no-print">
               <h3>SHIPPING LABEL</h3>
               <button className="close-btn" onClick={() => setShowModal(false)}>
@@ -294,6 +294,40 @@ const GenerateShipper = () => {
         </div>
       )}
 
+      {/* Bulk Barcode Modal */}
+      {showBulkModal && (
+        <div className="modal-overlay">
+          <div className="bulk-print-container print-area">
+             <div className="bulk-header no-print">
+                <h3>Bulk Label Printing - Batch: {selectedBatch}</h3>
+                <div className="header-btn-group">
+                   <button className="btn btn-primary" onClick={() => window.print()}><Printer size={18} /> Print All</button>
+                   <button className="btn btn-secondary" onClick={() => setShowBulkModal(false)}><X size={18} /> Close</button>
+                </div>
+             </div>
+             
+             <div className="labels-grid">
+                {displayData.map((record, idx) => (
+                   <div key={idx} className="barcode-card bulk-label-item">
+                      <div className="card-body">
+                         <div className="company-info" style={{ marginBottom: '5px' }}>
+                           <h5 style={{ margin: 0, fontSize: '10px' }}>FRESH LOGISTICS PVT LTD</h5>
+                         </div>
+                         <div className="product-details" style={{ fontSize: '9px', gap: '2px' }}>
+                           <div className="detail-row"><span>Product:</span> <strong>{record.itemName}</strong></div>
+                           <div className="detail-row"><span>Item/Batch:</span> <strong>{record.itemCode} / {record.batchCode}</strong></div>
+                         </div>
+                         <div className="barcode-container" style={{ marginTop: '5px' }}>
+                           <canvas id={`bulk-barcode-${idx}`}></canvas>
+                         </div>
+                      </div>
+                   </div>
+                ))}
+             </div>
+          </div>
+        </div>
+      )}
+
       <ConfirmModal 
         isOpen={showConfirm}
         title="Generate / Load Batch"
@@ -301,6 +335,29 @@ const GenerateShipper = () => {
         onConfirm={handleGenerateBatch}
         onCancel={() => setShowConfirm(false)}
       />
+
+      <style>{`
+        .bulk-print-container { background: white; width: 95%; max-width: 1200px; max-height: 90vh; overflow-y: auto; border-radius: 12px; padding: 20px; }
+        .bulk-header { display: flex; justify-content: space-between; align-items: center; border-bottom: 1px solid #eee; padding-bottom: 15px; margin-bottom: 20px; position: sticky; top: 0; background: white; z-index: 10; }
+        .labels-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; }
+        .bulk-label-item { border: 1.5px solid #000 !important; width: 100% !important; margin: 0 !important; box-shadow: none !important; }
+        
+        @media print {
+            .no-print { display: none !important; }
+            .modal-overlay { position: static; background: none; padding: 0; display: block; overflow: visible; }
+            .bulk-print-container { width: 100%; max-height: none; overflow: visible; padding: 0; }
+            .labels-grid { display: block; }
+            .bulk-label-item { 
+                page-break-inside: avoid; 
+                margin-bottom: 20px !important; 
+                border: 1px solid black !important;
+                width: 3.5in !important; /* Standard label size */
+                height: 2in !important;
+                display: inline-block;
+                margin-right: 10px;
+            }
+        }
+      `}</style>
     </div>
   );
 };

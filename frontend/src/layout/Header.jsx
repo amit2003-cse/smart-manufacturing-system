@@ -10,7 +10,11 @@ const Header = () => {
   return (
     <header className="main-header">
       <div className="left-section">
-        <button className="toggle-btn" onClick={() => setSidebarOpen(!isSidebarOpen)}>
+        <button 
+          className="toggle-btn" 
+          onClick={() => setSidebarOpen(!isSidebarOpen)}
+          title={isSidebarOpen ? "Close Menu" : "Open Menu"}
+        >
           <Menu size={20} />
         </button>
         <div className="logo">
