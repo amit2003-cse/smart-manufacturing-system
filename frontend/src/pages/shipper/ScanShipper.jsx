@@ -17,12 +17,12 @@ const ScanShipper = () => {
 
   // Session History (Local UI only, cleared on Save)
   const [scannedData, setScannedData] = useState(() => {
-    const saved = localStorage.getItem('scan_history');
+    const saved = sessionStorage.getItem('scan_history');
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('scan_history', JSON.stringify(scannedData));
+    sessionStorage.setItem('scan_history', JSON.stringify(scannedData));
   }, [scannedData]);
 
   const handleScan = (barcode) => {

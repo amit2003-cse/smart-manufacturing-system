@@ -1,0 +1,16 @@
+MODEL: gemini-flash-latest
+--- ANSWER ---
+For the **Wire Drawing Machine**, safety is the top priority. Based on the Wire Manufacturing Knowledge Base, here are the safety rules and guidelines you must follow:
+
+**Global Safety Guidelines:**
+1.  **Stop Machine for Inspection:** Always stop the machine completely before performing any manual inspection.
+2.  **No Operation with Faults:** Do not operate the machine if there are any known faults or technical issues.
+3.  **Use Safety Equipment:** Always use the required personal protective equipment (PPE) and safety gear.
+4.  **Follow Plant Procedures:** Strictly adhere to all established plant safety protocols and procedures.
+
+**Machine-Specific Safety & Operational Precautions:**
+5.  **Emergency Stop:** Ensure the emergency stop is functional. If the machine fails to start, check if the emergency stop is activated and reset it only when it is safe to do so.
+6.  **Proper Setup:** Ensure the die is properly aligned and the lubrication system is functioning correctly before starting the process to prevent mechanical failure.
+7.  **Monitor Parameters:** Continuously monitor wire diameter, tension, and speed to ensure the machine is operating within safe limits.
+
+⚠️ **Note:** If you encounter a specific fault, always follow the Lockout/Tagout (LOTO) procedures as per your plant's safety manual before attempting repairs.

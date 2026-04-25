@@ -2,7 +2,7 @@ import { atom } from 'recoil';
 
 // Authentication State
 const getInitialAuthState = () => {
-  return localStorage.getItem('isLoggedIn') === 'true';
+  return sessionStorage.getItem('isLoggedIn') === 'true';
 };
 
 export const isAuthenticatedState = atom({
@@ -11,7 +11,7 @@ export const isAuthenticatedState = atom({
   effects: [
     ({ onSet }) => {
       onSet((newValue) => {
-        localStorage.setItem('isLoggedIn', newValue);
+        sessionStorage.setItem('isLoggedIn', newValue);
       });
     },
   ],
@@ -29,13 +29,13 @@ export const userState = atom({
 });
 
 const getInitialState = (key, defaultVal) => {
-  const saved = localStorage.getItem(key);
+  const saved = sessionStorage.getItem(key);
   return saved ? JSON.parse(saved) : defaultVal;
 };
 
 const persistState = (key) => ({ onSet }) => {
   onSet(newValue => {
-    localStorage.setItem(key, JSON.stringify(newValue));
+    sessionStorage.setItem(key, JSON.stringify(newValue));
   });
 };
 

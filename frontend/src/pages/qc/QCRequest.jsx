@@ -12,7 +12,7 @@ import ConfirmModal from '../../components/shared/ConfirmModal';
 
 const QCRequest = () => {
   const [activeBatch, setActiveBatch] = useState(() => {
-    const saved = localStorage.getItem('qc_active_batch');
+    const saved = sessionStorage.getItem('qc_active_batch');
     return saved ? JSON.parse(saved) : null;
   });
   const [loading, setLoading] = useState(false);
@@ -24,13 +24,13 @@ const QCRequest = () => {
 
   // Session State with Persistence
   const [scannedList, setScannedList] = useState(() => {
-    const saved = localStorage.getItem('qc_request_session');
+    const saved = sessionStorage.getItem('qc_request_session');
     return saved ? JSON.parse(saved) : [];
   });
 
   useEffect(() => {
-    localStorage.setItem('qc_request_session', JSON.stringify(scannedList));
-    localStorage.setItem('qc_active_batch', JSON.stringify(activeBatch));
+    sessionStorage.setItem('qc_request_session', JSON.stringify(scannedList));
+    sessionStorage.setItem('qc_active_batch', JSON.stringify(activeBatch));
   }, [scannedList, activeBatch]);
 
   // Target capacity is fixed at 10 as per rules

@@ -18,17 +18,17 @@ const GenerateShipper = () => {
   const [unitBoxesDB, setUnitBoxesDB] = useRecoilState(unitBoxesDBState);
   
   // Persistence Logic only for UI Selection
-  const [selectedItem, setSelectedItem] = useState(() => localStorage.getItem('gen_item') || null);
-  const [selectedBatch, setSelectedBatch] = useState(() => localStorage.getItem('gen_batch') || null);
+  const [selectedItem, setSelectedItem] = useState(() => sessionStorage.getItem('gen_item') || null);
+  const [selectedBatch, setSelectedBatch] = useState(() => sessionStorage.getItem('gen_batch') || null);
   const [displayData, setDisplayData] = useState(() => {
-    const saved = localStorage.getItem('gen_display_data');
+    const saved = sessionStorage.getItem('gen_display_data');
     return saved ? JSON.parse(saved) : [];
   });
   
   useEffect(() => {
-    localStorage.setItem('gen_item', selectedItem || '');
-    localStorage.setItem('gen_batch', selectedBatch || '');
-    localStorage.setItem('gen_display_data', JSON.stringify(displayData));
+    sessionStorage.setItem('gen_item', selectedItem || '');
+    sessionStorage.setItem('gen_batch', selectedBatch || '');
+    sessionStorage.setItem('gen_display_data', JSON.stringify(displayData));
   }, [selectedItem, selectedBatch, displayData]);
 
   const [showModal, setShowModal] = useState(false);

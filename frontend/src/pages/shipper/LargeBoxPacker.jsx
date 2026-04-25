@@ -31,18 +31,18 @@ const LargeBoxPacker = () => {
 
   // Session Logic
   const [currentSession, setCurrentSession] = useState(() => {
-    const saved = localStorage.getItem('packing_session');
+    const saved = sessionStorage.getItem('packing_session');
     return saved ? JSON.parse(saved) : [];
   });
 
   const [activeBatch, setActiveBatch] = useState(() => {
-    const saved = localStorage.getItem('active_batch_lock');
+    const saved = sessionStorage.getItem('active_batch_lock');
     return saved ? JSON.parse(saved) : null;
   });
 
   useEffect(() => {
-    localStorage.setItem('packing_session', JSON.stringify(currentSession));
-    localStorage.setItem('active_batch_lock', JSON.stringify(activeBatch));
+    sessionStorage.setItem('packing_session', JSON.stringify(currentSession));
+    sessionStorage.setItem('active_batch_lock', JSON.stringify(activeBatch));
     if (activeBatch && currentSession.length !== activeBatch.capacity && mode === 'GENERATE') {
         setShowPreview(false);
     }
