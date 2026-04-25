@@ -8,10 +8,8 @@ ENV/
 env/
 .env
 
-# Vector Store (Local Index)
-vectorstore/*.bin
-vectorstore/*.json
-!vectorstore/.gitkeep
+# Vector Store (Manually tracking for deployment)
+
 
 # Data (Processed/Chunks)
 data/processed/
