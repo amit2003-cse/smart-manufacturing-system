@@ -50,6 +50,13 @@ class LLMEngine:
             if not GROQ_API_KEY:
                 print("WARNING: GROQ_API_KEY is not set.")
             else:
+                import os
+                # Fix for Render proxy conflict
+                os.environ.pop('HTTP_PROXY', None)
+                os.environ.pop('HTTPS_PROXY', None)
+                os.environ.pop('http_proxy', None)
+                os.environ.pop('https_proxy', None)
+                
                 self.groq_client = Groq(api_key=GROQ_API_KEY)
                 print(f"LLM engine ready. Model: {GROQ_MODEL} (Groq)")
         
