@@ -29,6 +29,13 @@ const Home = () => {
         const combinedSnap = await getDocs(collection(db, "combined_boxes"));
         const combined = combinedSnap.docs.map(d => ({ id: d.id, ...d.data() }));
         setCombinedBoxes(combined);
+
+        // 🚀 WAKE UP BACKEND (Cold Start Prevention)
+        const API_URL = window.location.hostname === 'localhost' 
+          ? "http://localhost:8000" 
+          : "https://smart-manufacturing-system.onrender.com";
+        
+        fetch(`${API_URL}/health`).catch(() => {}); // Silent ping
       } catch (e) {
         console.error("Sync Error:", e);
       }

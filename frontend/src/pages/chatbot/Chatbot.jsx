@@ -10,7 +10,9 @@ const EXAMPLE_QUERIES = [
   { text: "Bunching Machine maintenance", icon: "📋" },
 ];
 
-const API_URL = "http://localhost:8000";
+const API_URL = window.location.hostname === 'localhost' 
+  ? "http://localhost:8000" 
+  : "https://smart-manufacturing-system.onrender.com";
 
 const Chatbot = () => {
   const navigate = useNavigate();
