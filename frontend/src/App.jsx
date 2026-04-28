@@ -16,6 +16,9 @@ import DeliveryScan from './pages/delivery/DeliveryScan';
 import QCRequest from './pages/qc/QCRequest';
 import QCDecision from './pages/qc/QCDecision';
 import Chatbot from './pages/chatbot/Chatbot';
+import ProductionReport from './pages/reports/ProductionReport';
+import QCReport from './pages/reports/QCReport';
+import DeliveryReport from './pages/reports/DeliveryReport';
 import './styles/theme.scss';
 import 'devextreme/dist/css/dx.light.css';
 
@@ -47,6 +50,9 @@ function App() {
             <Route path="/qc/request" element={<QCRequest />} />
             <Route path="/qc/decision" element={<QCDecision />} />
             <Route path="/assistant" element={<Chatbot />} />
+            <Route path="/reports/production" element={<ProductionReport />} />
+            <Route path="/reports/qc" element={<QCReport />} />
+            <Route path="/reports/delivery" element={<DeliveryReport />} />
           </Routes>
         </MainLayout>
       )}

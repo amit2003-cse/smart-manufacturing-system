@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { useRecoilValue, useSetRecoilState } from 'recoil';
 import { sidebarState, isAuthenticatedState } from '../store/atoms';
 import { NavLink, useLocation } from 'react-router-dom';
-import { LayoutDashboard, Package, Scan, LogOut, ChevronDown, ChevronRight, Factory, CheckCircle2, AlertCircle, CheckCircle, MessageCircle } from 'lucide-react';
+import { LayoutDashboard, Package, Scan, LogOut, ChevronDown, ChevronRight, Factory, CheckCircle2, AlertCircle, CheckCircle, MessageCircle, BarChart3, FileText } from 'lucide-react';
 
 const Sidebar = () => {
   const isOpen = useRecoilValue(sidebarState);
@@ -41,7 +41,18 @@ const Sidebar = () => {
         { name: 'Dispatch Scanning', path: '/delivery/scan', icon: <Scan size={18} /> },
       ]
     },
-    { name: 'AI System Assistant', path: '/assistant', icon: <MessageCircle size={20} /> },
+   
+    {
+      name: 'Reports',
+      id: 'reports',
+      icon: <BarChart3 size={20} />,
+      subItems: [
+        { name: 'Production Report', path: '/reports/production', icon: <FileText size={18} /> },
+        { name: 'QC Report', path: '/reports/qc', icon: <FileText size={18} /> },
+        { name: 'Delivery Report', path: '/reports/delivery', icon: <FileText size={18} /> },
+      ]
+    },
+     { name: 'AI System Assistant', path: '/assistant', icon: <MessageCircle size={20} /> },
   ];
 
   const toggleSubmenu = (id) => {

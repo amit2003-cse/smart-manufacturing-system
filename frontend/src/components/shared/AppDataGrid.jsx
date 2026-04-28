@@ -7,7 +7,8 @@ const AppDataGrid = ({
   showActions = false, 
   actionRender, 
   actionWidth = 80,
-  allowExport = false 
+  allowExport = false,
+  hideBarcode = false 
 }) => {
   const [isMobile, setIsMobile] = useState(window.innerWidth <= 640);
 
@@ -57,7 +58,7 @@ const AppDataGrid = ({
           }} 
         />
         
-        <Column dataField="barcode" caption="Barcode" minWidth={150} />
+        {!hideBarcode && <Column dataField="barcode" caption="Barcode" minWidth={150} />}
         
         {/* Dynamic Action Column */}
         {showActions && (
