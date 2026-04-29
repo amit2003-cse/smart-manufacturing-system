@@ -32,7 +32,7 @@ const Login = () => {
       <div className="login-card fade-in">
         <div className="login-header">
           <div className="logo-icon"><LogIn size={32} /></div>
-          <h2>Fresh Logistics</h2>
+          <h2>Voltaic Cable</h2>
           <p>Sign in to continue</p>
         </div>
 

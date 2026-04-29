@@ -18,8 +18,8 @@ const Header = () => {
           <Menu size={20} />
         </button>
         <div className="logo">
-          <span className="logo-text" style={{ color: '#1e3a8a' }}>WIRE</span>
-          <span className="logo-subtext">MANUFACTURING</span>
+          <span className="logo-text" style={{ color: '#d32f2f' }}>VOLTAIC</span>
+          <span className="logo-subtext">CABLE</span>
         </div>
       </div>
 

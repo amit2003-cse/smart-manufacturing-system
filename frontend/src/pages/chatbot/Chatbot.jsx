@@ -4,7 +4,7 @@ import { ArrowLeft, Send, Bot, User, Sparkles, MessageCircle, HelpCircle } from 
 import './Chatbot.scss';
 
 const EXAMPLE_QUERIES = [
-  { text: "Troubleshoot Wire Drawing Machine", icon: "⚙️" },
+  { text: "Troubleshoot Cable Drawing Machine", icon: "⚙️" },
   { text: "Annealing Machine safety steps", icon: "🔥" },
   { text: "Extrusion parameter settings", icon: "🏭" },
   { text: "Bunching Machine maintenance", icon: "📋" },
@@ -148,7 +148,7 @@ const Chatbot = () => {
         <div className="header-center">
           <Bot size={22} />
           <div>
-            <h2>Wire Manufacturing AI Knowledge Base</h2>
+            <h2>Voltaic Cable AI Knowledge Base</h2>
             <span className="header-status">Machine Guidance and Troubleshooting Context</span>
           </div>
         </div>
@@ -166,7 +166,7 @@ const Chatbot = () => {
             <h2>Plant Machine Assistant</h2>
             <p style={{ maxWidth: '600px', margin: '0 auto 20px' }}>
               I am trained to help with troubleshooting and operational guidance for 
-              <strong> Wire Drawing, Annealing, Bunching, Extrusion, Coiling, and Packaging </strong> machines.
+              <strong> Cable Drawing, Annealing, Bunching, Extrusion, Coiling, and Packaging </strong> machines.
             </p>
 
             <div className="help-tips" style={{ gridTemplateColumns: '1fr', maxWidth: '500px', margin: '0 auto 24px' }}>

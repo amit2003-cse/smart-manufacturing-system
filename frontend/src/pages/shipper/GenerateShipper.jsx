@@ -264,7 +264,7 @@ const GenerateShipper = () => {
             
             <div className="card-body">
               <div className="company-info">
-                <h4>FRESH LOGISTICS PVT LTD</h4>
+                <h4>VOLTAIC CABLE</h4>
                 <p>Manufacturing Unit - 01</p>
               </div>
 
@@ -311,7 +311,7 @@ const GenerateShipper = () => {
                    <div key={idx} className="barcode-card bulk-label-item">
                       <div className="card-body">
                          <div className="company-info" style={{ marginBottom: '5px' }}>
-                           <h5 style={{ margin: 0, fontSize: '10px' }}>FRESH LOGISTICS PVT LTD</h5>
+                           <h5 style={{ margin: 0, fontSize: '10px' }}>VOLTAIC CABLE</h5>
                          </div>
                          <div className="product-details" style={{ fontSize: '9px', gap: '2px' }}>
                            <div className="detail-row"><span>Product:</span> <strong>{record.itemName}</strong></div>

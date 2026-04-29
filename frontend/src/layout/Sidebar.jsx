@@ -15,7 +15,7 @@ const Sidebar = () => {
   const menuItems = [
     { name: 'Home', path: '/home', icon: <LayoutDashboard size={20} /> },
     { 
-      name: 'Wire Production', 
+      name: 'Cable Production', 
       id: 'production',
       icon: <Factory size={20} />, 
       subItems: [
@@ -28,12 +28,12 @@ const Sidebar = () => {
       id: 'qc',
       icon: <CheckCircle2 size={20} />,
       subItems: [
-        { name: 'Wire QC Request', path: '/qc/request', icon: <AlertCircle size={18} /> },
-        { name: 'Wire QC Decision', path: '/qc/decision', icon: <CheckCircle size={18} /> },
+        { name: 'Cable QC Request', path: '/qc/request', icon: <AlertCircle size={18} /> },
+        { name: 'Cable QC Decision', path: '/qc/decision', icon: <CheckCircle size={18} /> },
       ]
     },
     { 
-      name: 'Wire Dispatch', 
+      name: 'Cable Dispatch', 
       id: 'delivery',
       icon: <Package size={20} />, 
       subItems: [

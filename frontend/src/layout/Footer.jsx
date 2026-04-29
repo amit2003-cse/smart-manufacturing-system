@@ -4,7 +4,7 @@ const Footer = () => {
   return (
     <footer className="main-footer no-print">
       <div className="footer-content">
-        <span>© 2024 Fresh Logistics Enterprise</span>
+        <span>© 2024 Voltaic Cable Enterprise</span>
         <div className="footer-links">
           <span>Support</span>
           <span>Privacy Policy</span>
