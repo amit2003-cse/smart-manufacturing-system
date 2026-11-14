@@ -1,5 +1,5 @@
 import React from 'react';
-import { Package, Scan, Activity, TrendingUp, ArrowRight, MessageCircle, HelpCircle } from 'lucide-react';
+import { Package, Scan, Activity, TrendingUp, ArrowRight, MessageCircle, HelpCircle, Sparkles, Barcode, CheckCircle2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { useRecoilState } from 'recoil';
 import { unitBoxesDBState, qcState, combinedBoxesDBState } from '../../store/atoms';
@@ -54,24 +54,64 @@ const Home = () => {
   const totalQCRaised = qcRecords.length;
   
   const stats = [
-    { title: 'Total Reels Generated', value: totalUnits.toLocaleString(), icon: <Package size={24} />, color: 'blue' },
-    { title: 'Total Scanned Reels', value: totalScansAllTime.toLocaleString(), icon: <Scan size={24} />, color: 'green' },
-    { title: 'Total QC Requests', value: totalQCRaised.toLocaleString(), icon: <Activity size={24} />, color: 'orange' },
-    { title: 'Total Master Spools', value: totalCartons.toLocaleString(), icon: <TrendingUp size={24} />, color: 'purple' },
+    { 
+      title: 'Total Reels Generated', 
+      value: totalUnits.toLocaleString(), 
+      badge: 'Production',
+      icon: <Package size={22} />, 
+      color: 'blue' 
+    },
+    { 
+      title: 'Total Scanned Reels', 
+      value: totalScansAllTime.toLocaleString(), 
+      badge: 'Floor Scan',
+      icon: <Scan size={22} />, 
+      color: 'green' 
+    },
+    { 
+      title: 'Total QC Requests', 
+      value: totalQCRaised.toLocaleString(), 
+      badge: 'Quality Check',
+      icon: <Activity size={22} />, 
+      color: 'orange' 
+    },
+    { 
+      title: 'Total Master Spools', 
+      value: totalCartons.toLocaleString(), 
+      badge: 'Dispatch',
+      icon: <TrendingUp size={22} />, 
+      color: 'purple' 
+    },
   ];
 
   return (
     <div className="dashboard-container fade-in">
+      {/* Modern Industrial Welcome Banner */}
       <div className="welcome-banner">
-        <h1>Voltaic Cable Hub 👋</h1>
-        <p>Real-time monitoring of reel production and dispatch operations.</p>
+        <div className="banner-content">
+          <div className="banner-badge">
+            <span className="live-indicator"></span>
+            <span>Real-Time MES • Plant Active</span>
+          </div>
+          <h1>Voltaic Cable Hub 👋</h1>
+          <p>Real-time monitoring of cable reel production, floor scanning & dispatch operations.</p>
+        </div>
+        <div className="banner-quick-stats">
+          <div className="quick-stat-pill">
+            <CheckCircle2 size={16} className="pill-icon text-emerald" />
+            <span>Systems Online</span>
+          </div>
+        </div>
       </div>
 
       {/* Stats Grid */}
       <div className="stats-grid">
         {stats.map((stat, i) => (
           <div key={i} className={`stat-card ${stat.color}`}>
-            <div className="stat-icon">{stat.icon}</div>
+            <div className="stat-top">
+              <div className="stat-icon">{stat.icon}</div>
+              <span className="stat-badge">{stat.badge}</span>
+            </div>
             <div className="stat-info">
               <h3>{stat.value}</h3>
               <p>{stat.title}</p>
@@ -81,74 +121,81 @@ const Home = () => {
       </div>
 
       {/* Quick Actions */}
-      <h3 className="section-title">Operations</h3>
+      <div className="section-title-wrap">
+        <h3 className="section-title">Operations</h3>
+        <span className="section-subtitle">Quick access to floor tasks</span>
+      </div>
+
       <div className="actions-grid">
         <div className="action-card" onClick={() => navigate('/shipper/generate')}>
-          <div className="action-content">
-            <h4>Generate Reel Label</h4>
-            <p>Create new barcodes for cable reels</p>
+          <div className="action-left">
+            <div className="action-icon-wrap blue-tone">
+              <Barcode size={22} />
+            </div>
+            <div className="action-content">
+              <h4>Generate Reel Label</h4>
+              <p>Create new standardized barcodes for cable reels</p>
+            </div>
           </div>
-          <ArrowRight size={20} />
+          <div className="action-arrow">
+            <ArrowRight size={18} />
+          </div>
         </div>
 
         <div className="action-card" onClick={() => navigate('/shipper/scan')}>
-          <div className="action-content">
-            <h4>Scan Reel</h4>
-            <p>Verify and track individual cable reels</p>
+          <div className="action-left">
+            <div className="action-icon-wrap emerald-tone">
+              <Scan size={22} />
+            </div>
+            <div className="action-content">
+              <h4>Scan Reel</h4>
+              <p>Verify and track individual cable reels on floor</p>
+            </div>
           </div>
-          <ArrowRight size={20} />
+          <div className="action-arrow">
+            <ArrowRight size={18} />
+          </div>
         </div>
       </div>
 
       {/* Help / System Assistant Section */}
-      <div className="card" style={{ 
-        marginTop: '32px', 
-        border: '1px solid rgba(211, 47, 47, 0.1)', 
-        background: 'linear-gradient(135deg, #ffffff 0%, #fff5f5 100%)',
-        boxShadow: '0 10px 25px -5px rgba(211, 47, 47, 0.05)',
-        borderRadius: '24px'
-      }}>
-        <div style={{ display: 'flex', alignItems: 'flex-start', gap: '20px' }}>
-          <div style={{ 
-            background: 'linear-gradient(135deg, #d32f2f 0%, #990000 100%)', 
-            padding: '16px', 
-            borderRadius: '16px', 
-            color: 'white', 
-            flexShrink: 0,
-            boxShadow: '0 8px 16px rgba(211, 47, 47, 0.2)'
-          }}>
-            <HelpCircle size={28} />
+      <div className="assistant-card">
+        <div className="assistant-layout">
+          <div className="assistant-icon-badge">
+            <Sparkles size={24} />
           </div>
-          <div style={{ flex: 1 }}>
-            <h3 style={{ margin: '0 0 8px', fontSize: '20px', color: '#1e293b', fontWeight: '800' }}>Need Help?</h3>
-            <p style={{ margin: '0 0 16px', color: '#64748b', fontSize: '15px', lineHeight: '1.6' }}>
+          <div className="assistant-body">
+            <div className="assistant-header-row">
+              <h3>Need Help with Floor Operations?</h3>
+              <span className="ai-tag">AI Powered</span>
+            </div>
+            <p>
               Use our AI-powered System Assistant to ask any question about manufacturing SOPs, 
               quality control rules, packaging procedures, or system operations. 
-              The assistant answers <strong>only from your uploaded documents</strong> — no guessing.
+              Answers are retrieved <strong>strictly from verified factory documents</strong>.
             </p>
-            <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap', marginBottom: '16px' }}>
-              <span style={{ background: 'white', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: '10px', fontSize: '13px', color: '#b91c1c', fontWeight: '600', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+            <div className="prompt-chips">
+              <span 
+                className="prompt-chip"
+                onClick={() => navigate('/assistant')}
+                title="Click to ask assistant"
+              >
                 "What are the packaging rules?"
               </span>
-              <span style={{ background: 'white', border: '1px solid #fecaca', padding: '6px 12px', borderRadius: '10px', fontSize: '13px', color: '#b91c1c', fontWeight: '600', boxShadow: '0 2px 4px rgba(0,0,0,0.02)' }}>
+              <span 
+                className="prompt-chip"
+                onClick={() => navigate('/assistant')}
+                title="Click to ask assistant"
+              >
                 "Is batch mixing allowed?"
               </span>
             </div>
             <button 
-              className="btn btn-primary" 
+              className="assistant-btn" 
               onClick={() => navigate('/assistant')}
-              style={{ 
-                gap: '8px', 
-                background: '#1e3a8a', 
-                border: 'none', 
-                padding: '12px 24px', 
-                borderRadius: '12px',
-                fontWeight: '700',
-                boxShadow: '0 4px 12px rgba(30, 58, 138, 0.2)'
-              }}
             >
-              <MessageCircle size={18} />
-              Open System Assistant
+              <MessageCircle size={17} />
+              <span>Open System Assistant</span>
             </button>
           </div>
         </div>

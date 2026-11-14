@@ -23,12 +23,14 @@ const MainLayout = ({ children }) => {
           <div className="content-scroll-container">
             <div className="breadcrumb-container">
               <span className="crumb">Home</span>
-              {pathnames.map((name, index) => (
-                <span key={index}>
-                  <span className="separator"> &gt; </span>
-                  <span className="crumb capitalize">{name.replace('-', ' ')}</span>
-                </span>
-              ))}
+              {pathnames
+                .filter(name => name.toLowerCase() !== 'home')
+                .map((name, index) => (
+                  <span key={index}>
+                    <span className="separator"> &gt; </span>
+                    <span className="crumb capitalize">{name.replace('-', ' ')}</span>
+                  </span>
+                ))}
             </div>
             <div className="page-wrapper">
               {children}
